@@ -96,7 +96,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      dataframe[column] = desired_class
      dataframe = rbind(self$x_int , dataframe)
      dataframe = dataframe[-1,]
-     
+     print(dataframe)
      # predicting the original instance
      pred_x_interest = predictor$predict(self$x_int)
      
@@ -109,7 +109,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      
      # these are for tSNE plot
      self$data_tSNE = df_merged
-     self$data_tSNE$two_year_recid = "No"
+     # self$data_tSNE$two_year_recid = "No"
     
      # this `no` is for column name of probability of no.  
      df_merged$diff_from_instance = ((df_merged[, "No"]) - (pred_x_interest[, 1]))
