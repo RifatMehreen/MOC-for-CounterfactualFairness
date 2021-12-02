@@ -1,6 +1,5 @@
 #' Fairness testing of an ML model
 #' 
-#' @template FairnessTest
 #' 
 #' @examples 
 #' if (require("randomForest")) {

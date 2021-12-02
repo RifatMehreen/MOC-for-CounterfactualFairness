@@ -1,6 +1,5 @@
 #' Fairness testing of an ML model
 #' 
-#' @template FairnessTest
 #' 
 #' @examples 
 #' if (require("randomForest")) {
@@ -96,7 +95,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      dataframe[column] = desired_class
      dataframe = rbind(self$x_int , dataframe)
      dataframe = dataframe[-1,]
-     print(dataframe)
+     #print(dataframe)
      # predicting the original instance
      pred_x_interest = predictor$predict(self$x_int)
      

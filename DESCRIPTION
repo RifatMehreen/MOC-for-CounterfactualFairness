@@ -1,0 +1,57 @@
+Package: moccf
+Type: Package
+Title: Counterfactual Fairness
+Version: 0.9.0
+Date: 2019-02-01
+Authors@R: c(
+        person("Susanne", "Dandl", email = "dandl.susanne@googlemail.com", role = c("aut", "cre")),
+        person("Andreas", "Hofheinz", email = "andreas.hofheinz@outlook.com", role = c("aut"))
+    )
+Maintainer: Susanne Dandl <dandl.susanne@googlemail.com>
+Description: Counterfactuals as described in <doi:DOI>.
+URL: https://github.com/TODO
+BugReports: https://github.com/TODO/issues
+Imports: 
+    R6,
+    checkmate,
+    StatMatch,
+    iml,
+    data.table,
+    paradox,
+    miesmuschel,
+    bbotk,
+    gower,
+    counterfactuals
+Suggests: 
+    randomForest,
+    GGally,
+    trtf,
+    testthat,
+    MASS,
+    knitr,
+    cowplot,
+    covr,
+    ggplot2,
+    keras,
+    rchallenge,
+    partykit,
+    rmarkdown,
+    basefun,
+    featureTweakR,
+    mlbench
+License: GPL (>= 3)
+Encoding: UTF-8
+RoxygenNote: 7.1.2
+VignetteBuilder: 
+    knitr, 
+    randomForest,
+    featureTweakR,
+    mlbench,
+    GGally
+Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 3
+Remotes:
+    mlr-org/miesmuschel@multiobjective_hb,
+    mlr-org/paradox@expression_params,
+    katokohaku/featureTweakR,
+    dandls/counterfactuals
