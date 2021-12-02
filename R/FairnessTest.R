@@ -8,6 +8,7 @@
 #'   compas <- compas %>% drop_na()
 #'   compas <- compas %>% distinct()
 #'   # Train a model
+#'   set.seed(142)
 #'   rf = randomForest(two_year_recid ~ ., data = compas[-17L, ])
 #'   # Create a predictor object
 #'   predictor = iml::Predictor$new(rf, type = "prob")
@@ -95,7 +96,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      dataframe[column] = desired_class
      dataframe = rbind(self$x_int , dataframe)
      dataframe = dataframe[-1,]
-     #print(dataframe)
+     print(dataframe)
      # predicting the original instance
      pred_x_interest = predictor$predict(self$x_int)
      
@@ -154,13 +155,21 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    #' plots a bar plot for the predictions
    #' 
    #' @return A barplot for the predictions
-   plot_bar = function(){
+   prediction_percentages = function(){
      cf_data = private$get_counterfactuals()
      new_data = cbind(cf_data, as.data.frame(self$predictor$predict(cf_data)))
      new_data <- subset(new_data, select = -c(9))
      new_data$two_year_recid <- ifelse(new_data$No > 0.5,"No", "Yes")
-     prediction_of_counterfactuals = new_data$two_year_recid
-     ggplot(new_data, aes(x=prediction_of_counterfactuals)) + geom_bar()
+     prediction_of_cfs = levels(new_data$two_year_recid)
+     percent_cf <- vector(mode = "list", length = 0)
+     percent_cf$No = 100 * (sum(new_data$two_year_recid == "No")/nrow(new_data))
+     percent_cf$Yes = 100 * (sum(new_data$two_year_recid == "Yes")/nrow(new_data))
+     df = data.frame(No = numeric(0), Yes = numeric(0))
+     newrow = data.frame(No=percent_cf$No, Yes=percent_cf$Yes)
+     df <- rbind(df, newrow)
+     return(df)
+     
+     # ggplot(new_data, aes(x=prediction_of_counterfactuals)) + geom_bar()
    },
    
    #' @description 

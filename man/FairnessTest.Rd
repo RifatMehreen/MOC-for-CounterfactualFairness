@@ -15,6 +15,7 @@ if (require("randomForest")) {
   compas <- compas \%>\% drop_na()
   compas <- compas \%>\% distinct()
   # Train a model
+  set.seed(142)
   rf = randomForest(two_year_recid ~ ., data = compas[-17L, ])
   # Create a predictor object
   predictor = iml::Predictor$new(rf, type = "prob")
@@ -37,7 +38,7 @@ if (require("randomForest")) {
 \item \href{#method-get_difference}{\code{FairnessTest$get_difference()}}
 \item \href{#method-print_prediction}{\code{FairnessTest$print_prediction()}}
 \item \href{#method-print_counterfactuals}{\code{FairnessTest$print_counterfactuals()}}
-\item \href{#method-plot_bar}{\code{FairnessTest$plot_bar()}}
+\item \href{#method-prediction_percentages}{\code{FairnessTest$prediction_percentages()}}
 \item \href{#method-get_cfactuals_mean}{\code{FairnessTest$get_cfactuals_mean()}}
 \item \href{#method-plot_tSNE}{\code{FairnessTest$plot_tSNE()}}
 \item \href{#method-clone}{\code{FairnessTest$clone()}}
@@ -147,12 +148,12 @@ prints the generated counterfactuals
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot_bar"></a>}}
-\if{latex}{\out{\hypertarget{method-plot_bar}{}}}
-\subsection{Method \code{plot_bar()}}{
+\if{html}{\out{<a id="method-prediction_percentages"></a>}}
+\if{latex}{\out{\hypertarget{method-prediction_percentages}{}}}
+\subsection{Method \code{prediction_percentages()}}{
 plots a bar plot for the predictions
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$plot_bar()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$prediction_percentages()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
