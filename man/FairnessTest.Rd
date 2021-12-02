@@ -20,7 +20,7 @@ if (require("randomForest")) {
   # Create a predictor object
   predictor = iml::Predictor$new(rf, type = "prob")
   # Find differences of the prediction of counterfactuals and original instance 
-  fairness_obj = FairnessTest$new(predictor, df = compas, column = "race", row_num = 17L, desired_class = "Caucasian")
+  fairness_obj = FairnessTest$new(predictor, df = compas, column = "race", row_num = 17L, desired_class = "Caucasian", n_generations = 175)
   # Print the results
   difference = fairness_obj$get_difference()
   print(difference)

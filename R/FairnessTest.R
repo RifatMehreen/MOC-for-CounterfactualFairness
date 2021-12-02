@@ -13,7 +13,7 @@
 #'   # Create a predictor object
 #'   predictor = iml::Predictor$new(rf, type = "prob")
 #'   # Find differences of the prediction of counterfactuals and original instance 
-#'   fairness_obj = FairnessTest$new(predictor, df = compas, column = "race", row_num = 17L, desired_class = "Caucasian")
+#'   fairness_obj = FairnessTest$new(predictor, df = compas, column = "race", row_num = 17L, desired_class = "Caucasian", n_generations = 175)
 #'   # Print the results
 #'   difference = fairness_obj$get_difference()
 #'   print(difference)
@@ -44,6 +44,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    desired_class = NULL,
    data_tSNE = NULL,
    x_int = NULL,
+   n_generations = NULL,
    
    initialize = function(predictor = NULL, df = NULL, column = NULL, row_num = NULL, desired_class = NULL, epsilon = NULL, fixed_features = NULL, max_changed = NULL, mu = 20L, 
                          n_generations = 175L, p_rec = 0.57, p_rec_gen = 0.85, p_rec_use_orig = 0.88, p_mut = 0.79, 
@@ -58,6 +59,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      self$column <- column
      self$row_num <- row_num
      self$desired_class <- desired_class
+     self$n_generations <- n_generations
      self$data_tSNE <- NULL
      self$x_int <- NULL
      },
@@ -73,6 +75,12 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      row_num = self$row_num
      desired_class = self$desired_class
      column = self$column
+     n_generations = self$n_generations
+     # x_int = self$x_int
+     
+     # dropiing the response variable 
+     # y = predictor$data$y.names
+     # x_int = x_int[,!(names(x_int) %in% y)]
      
      # variable checks
      assert_number(row_num, lower = 1, upper = nrow(df))
@@ -80,13 +88,14 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      assert_character(desired_class, len = 1L, any.missing = FALSE)
      
      # predictor for the protected attribute as response variable
-     predictor_protected = private$get_predictor_protected()
+     predictor_protected = private$get_predictor_protected(predictor)
      
      # generating counterfactuals using `MOCClassif`
-     cfactuals = private$get_cfactuals_moc(predictor_protected, desired_class, row_num, df)
+     cfactuals = private$get_cfactuals_moc(predictor_protected, desired_class, row_num, df, n_generations)
      
      # transform the counterfactuals into dataframe and appending the protected attribute to the dataframe
      dataframe = as.data.frame(cfactuals$data)
+     # dataframe = dataframe[,!(names(dataframe) %in% y)]
      dataframe[column] = desired_class
      dataframe = rbind(self$x_int , dataframe)
      dataframe = dataframe[-1,]
@@ -101,9 +110,8 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      # calculating the distances
      df_merged = cbind(dataframe, df_pred_prot)
      
-     # these are for tSNE plot
+     # this is for tSNE plot
      self$data_tSNE = df_merged
-     # self$data_tSNE$two_year_recid = "No"
     
      # this `no` is for column name of probability of no.  
      df_merged$diff_from_instance = ((df_merged[, "No"]) - (pred_x_interest[, 1]))
@@ -180,6 +188,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    #' 
    #' @return tSNE plot for the dataset with counterfactuals and x_interest
    plot_tSNE = function(){
+     predictor = self$predictor
      df_data = as.data.frame(self$df)
      df_data["type"] = "original data"
      row_num = self$row_num
@@ -198,7 +207,8 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      recidivism_meta <- df_merged %>%
        select(ID, type, two_year_recid, race, sex)
      
-     task = TaskClassif$new("task", df_merged, "two_year_recid")
+     y = predictor$data$y.names
+     task = mlr3::TaskClassif$new("task", df_merged, y)
      poe = po("encode")
      df_data = as.data.frame(poe$train(list(task))[[1]]$data())
      
@@ -207,7 +217,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
        select(where(is.numeric)) %>%
        column_to_rownames("ID") %>%
        scale() %>%
-       Rtsne(check_duplicates = TRUE)
+       Rtsne::Rtsne(check_duplicates = TRUE)
      
      tSNE_df <- tSNE_fit$Y %>%
        as.data.frame() %>%
@@ -247,10 +257,13 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
     #' returns the predictor for protected attribute 
     #' 
     #' @return the predictor protected
-    get_predictor_protected = function(){
+    get_predictor_protected = function(predictor){
       df = self$df
       row_num = self$row_num
       column = self$column
+      # y = predictor$data$y.names
+      # idx_y = which(data.frame(colnames(df)) == y)
+      # df <- subset(df, select = -c(idx_y))
       
       est = as.formula(paste(substitute(column), " ~ ."))
       set.seed(142)
@@ -263,8 +276,8 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
     #' creating a new object of `MOCClassif` for generating counterfactuals
     #' 
     #' @return the moc generated cfactuals
-    get_cfactuals_moc = function(predictor_protected, desired_class, row_num, df){
-      moc_classif = MOCClassif$new(predictor_protected, n_generations = 175L)
+    get_cfactuals_moc = function(predictor_protected, desired_class, row_num, df, n_generations){
+      moc_classif = MOCClassif$new(predictor_protected, n_generations = n_generations)
       self$x_int = df[row_num, ]
       cfactuals = moc_classif$find_counterfactuals(self$x_int, desired_class = desired_class, desired_prob = c(0.5, 1))
     }
