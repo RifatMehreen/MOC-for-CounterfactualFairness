@@ -71,14 +71,6 @@ tSNE_plot_compas = function(){
   idx_c = which(tSNE_df$type == "counterfactuals")
   
   library(ggplot2)
-  # tSNE_df %>%
-  #   ggplot2::ggplot(aes(x = tSNE1,
-  #                       y = tSNE2,
-  #                       color = type,
-  #                       shape = type,))+ geom_point() + scale_size_manual(values=c(2,3,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 1), 
-  #                                                                   color="red",
-  #                                                                   inherit.aes = FALSE) + theme(legend.position="bottom")tSNE_df
-  
   tSNE_df %>%
     ggplot2::ggplot(aes(x = tSNE1,
                         y = tSNE2,))+ geom_point(aes(shape=type, color=race, size=type)) + scale_size_manual(values=c(3,1,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
