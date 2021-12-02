@@ -80,23 +80,17 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      assert_character(desired_class, len = 1L, any.missing = FALSE)
      
      # predictor for the protected attribute as response variable
-     est = as.formula(paste(substitute(column), " ~ ."))
-     set.seed(142)
-     rf1 = randomForest(est, data = df[-(row_num), ])
-     predictor_protected = iml::Predictor$new(rf1, type = "prob", data = df[-(row_num), ])
+     predictor_protected = private$get_predictor_protected()
      
-     # creating a new object of `MOCClassif` for generating counterfactuals
-     moc_classif = MOCClassif$new(predictor_protected, n_generations = 175L)
-     self$x_int = df[row_num, ]
-     #x_interest = df[row_num, ]
-     cfactuals = moc_classif$find_counterfactuals(self$x_int, desired_class = desired_class, desired_prob = c(0.5, 1))
+     # generating counterfactuals using `MOCClassif`
+     cfactuals = private$get_cfactuals_moc(predictor_protected, desired_class, row_num, df)
      
      # transform the counterfactuals into dataframe and appending the protected attribute to the dataframe
      dataframe = as.data.frame(cfactuals$data)
      dataframe[column] = desired_class
      dataframe = rbind(self$x_int , dataframe)
      dataframe = dataframe[-1,]
-     print(dataframe)
+     
      # predicting the original instance
      pred_x_interest = predictor$predict(self$x_int)
      
@@ -247,6 +241,32 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
       cf_data = as.data.frame(cf_data)
       cf_data <- subset(cf_data, select = -c(17, 18))
       return(cf_data)
+    },
+    
+    #' @description 
+    #' returns the predictor for protected attribute 
+    #' 
+    #' @return the predictor protected
+    get_predictor_protected = function(){
+      df = self$df
+      row_num = self$row_num
+      column = self$column
+      
+      est = as.formula(paste(substitute(column), " ~ ."))
+      set.seed(142)
+      rf1 = randomForest(est, data = df[-(row_num), ])
+      predictor_protected = iml::Predictor$new(rf1, type = "prob", data = df[-(row_num), ])
+      return(predictor_protected)
+    },
+    
+    #' @description 
+    #' creating a new object of `MOCClassif` for generating counterfactuals
+    #' 
+    #' @return the moc generated cfactuals
+    get_cfactuals_moc = function(predictor_protected, desired_class, row_num, df){
+      moc_classif = MOCClassif$new(predictor_protected, n_generations = 175L)
+      self$x_int = df[row_num, ]
+      cfactuals = moc_classif$find_counterfactuals(self$x_int, desired_class = desired_class, desired_prob = c(0.5, 1))
     }
   )
 )
