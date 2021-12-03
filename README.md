@@ -3,7 +3,7 @@
 In this example, we train a `randomForest` on the `COMPAS` dataset.
 
 We now examine whether a given `yes` for `two_yr_recid` observation will change
-to a `no` for the generated counterfactuals.
+to a `no` for the generated counterfactuals (with `race` changed to `Caucasian` from `African-American`).
 
 ``` r
 library(tidyverse)
