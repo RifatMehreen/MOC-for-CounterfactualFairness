@@ -2,8 +2,8 @@
 
 In this example, we train a `randomForest` on the `COMPAS` dataset.
 
-We now examine whether a given `chance of reoffending` observation will change
-to a `no-chance of reoffending`.
+We now examine whether a given `yes` for `two_yr_recid` observation will change
+to a `no` for the generated counterfactuals.
 
 ``` r
 library(counterfactuals)
@@ -57,6 +57,15 @@ We use the `$get_difference()` method to find difference of predictions of the  
 difference = fairness_obj$get_difference()
 ```
 
-`cfactuals` is a `Counterfactuals` object that contains the found
-counterfactuals and provides several methods for their evaluation and
-visualization.
+We can also use `$print_prediction()` method to look into the predictions for both `x_interest` and the generated counterfactuals
+``` r
+fairness_obj$print_prediction()
+```
+
+Use `$print_counterfactuals()` to get the generated counterfactuals
+``` r
+fairness_obj$print_counterfactuals()
+```
+
+There are also some other methods for visualizationa and evaluation
+
