@@ -6,6 +6,13 @@ We now examine whether a given `yes` for `two_yr_recid` observation will change
 to a `no` for the generated counterfactuals.
 
 ``` r
+library(tidyverse)
+library(Rtsne)
+library(mlr3pipelines)
+options(rgl.useNULL = TRUE)
+library(rgl)
+library(Rmpfr)
+library(fairml)
 library(counterfactuals)
 library(randomForest)
 library(iml)
