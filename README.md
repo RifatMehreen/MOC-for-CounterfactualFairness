@@ -51,20 +51,12 @@ For `x_interest` the model predicts:
 #> 1 0.23 0.77
 ```
 
-We use the `$find_counterfactuals()` method to find counterfactuals for
-`x_interest`.
+We use the `$get_difference()` method to find difference of predictions of the  `x_interest` and the counterfactuals.
 
 ``` r
-cfactuals = wi_classif$find_counterfactuals(
-  x_interest, desired_class = "versicolor", desired_prob = c(0.5, 1)
-)
+difference = fairness_obj$get_difference()
 ```
 
 `cfactuals` is a `Counterfactuals` object that contains the found
 counterfactuals and provides several methods for their evaluation and
 visualization.
-
-
- # Print the results
- difference = fairness_obj$get_difference()
- print(difference)
