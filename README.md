@@ -1,11 +1,9 @@
 # MOC-for-CounterfactualFairness
 
-## Get started
+In this example, we train a `randomForest` on the `COMPAS` dataset.
 
-In this example, we train a `randomForest` on the `iris` dataset.
-
-We then examine how a given `virginica` observation would have to change
-to be classified as `versicolor`.
+We now examine whether a given `chance of reoffending` observation will change
+to a `no-chance of reoffending`.
 
 ``` r
 library(counterfactuals)
@@ -13,27 +11,35 @@ library(randomForest)
 library(iml)
 ```
 
-First, we train the randomForest model to predict the `Species`. <br>
+First, we load the data and pre-process it
+
+```r
+# data pre-processing 
+compas <- fairml::compas
+compas <- compas %>% drop_na()
+compas <- compas %>% distinct()
+``` 
+ 
+Then we train the randomForest model to predict the `two-yr-recid` (Two years recidivism or chances of reoffending). <br>
 Note that we leave out one observation from the training data which is
 our `x_interest`.
 
 ``` r
-rf = randomForest(Species ~ ., data = iris[-150L, ])
+rf = randomForest(two_year_recid ~ ., data = compas[-17L, ])
 ```
 
-We then create an `iml::Predictor` object, that holds the model and the
+We now create an `iml::Predictor` object, that holds the model and the
 data for analyzing the model.
 
 ``` r
-predictor = Predictor$new(rf, type = "prob")
+predictor = iml::Predictor$new(rf, type = "prob")
 ```
 
-Now we set up an object of the counterfactual explanation method we want
-to use. Here we use `WhatIf` and since we have a classification task, we
-create an `WhatIfClassif` object.
+Now we set up an object of the counterfactual fairness test method we want
+to use. Here we use `FairnessTest`
 
 ``` r
-wi_classif = WhatIfClassif$new(predictor, n_counterfactuals = 5L)
+fairness_obj = FairnessTest$new(predictor, df = compas, column = "race", row_num = 17L, desired_class = "Caucasian", n_generations = 100)
 ```
 
 For `x_interest` the model predicts:
@@ -58,23 +64,7 @@ cfactuals = wi_classif$find_counterfactuals(
 counterfactuals and provides several methods for their evaluation and
 visualization.
 
- ```r
- if (require("randomForest")) {
-   # data pre-processing 
-   compas <- fairml::compas
-   compas <- compas %>% drop_na()
-   compas <- compas %>% distinct()
-   
-   # Train a model
-   rf = randomForest(two_year_recid ~ ., data = compas[-17L, ])
-   
-   # Create a predictor object
-   predictor = iml::Predictor$new(rf, type = "prob")
-   
-   # Find differences of the prediction of counterfactuals and original instance 
-   fairness_obj = FairnessTest$new(predictor, df = compas, column = "race", row_num = 17L, desired_class = "Caucasian")
-   
-   # Print the results
-   difference = fairness_obj$get_difference()
-   print(difference)
- }```
+
+ # Print the results
+ difference = fairness_obj$get_difference()
+ print(difference)
