@@ -60,8 +60,8 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      self$row_num <- row_num
      self$desired_class <- desired_class
      self$n_generations <- n_generations
+     self$x_int = df[row_num, ]
      self$data_tSNE <- NULL
-     self$x_int <- NULL
      },
 
    #' @description 
@@ -76,7 +76,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      desired_class = self$desired_class
      column = self$column
      n_generations = self$n_generations
-     # x_int = self$x_int
+     x_int = self$x_int
      
      # dropiing the response variable 
      # y = predictor$data$y.names
@@ -113,10 +113,12 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      # this is for tSNE plot
      self$data_tSNE = df_merged
     
-     # this `no` is for column name of probability of no.  
-     df_merged$diff_from_instance = ((df_merged[, "No"]) - (pred_x_interest[, 1]))
-     df_merged = subset(df_merged, No >= 0.5)
-     df_merged = df_merged[order(-No),]
+     # this `no` is for column name of probability of no.
+     idx_pred = which(pred_x_interest<=0.5)
+     name_col = names(pred_x_interest[idx_pred])
+     df_merged$diff_from_instance = ((df_merged[, ..name_col]) - (pred_x_interest[, 1]))
+     idx_col = which(names(df_merged)==name_col)
+     df_merged = df_merged[as.vector(df_merged[[idx_col]]) > 0.5, ]
      
      # deleting the response variable from the data frame
      n = grep(names(predictor$data$y), colnames(df_merged))
