@@ -45,10 +45,10 @@ fairness_obj = FairnessTest$new(predictor, df = compas, column = "race", row_num
 For `x_interest` the model predicts:
 
 ``` r
-x_interest = iris[150L, ]
-predictor$predict(x_interest)
-#>   setosa versicolor virginica
-#> 1      0      0.104     0.896
+> x_interest = compas[17L, ]
+> predictor$predict(x_interest)
+#>    No  Yes
+#> 1 0.23 0.77
 ```
 
 We use the `$find_counterfactuals()` method to find counterfactuals for
