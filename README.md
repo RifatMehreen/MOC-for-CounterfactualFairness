@@ -14,7 +14,6 @@ library(iml)
 First, we load the data and pre-process it
 
 ```r
-# data pre-processing 
 compas <- fairml::compas
 compas <- compas %>% drop_na()
 compas <- compas %>% distinct()
