@@ -7,7 +7,10 @@ to a `no` for the generated counterfactuals (with `race` changed to `Caucasian` 
 
 ``` r
 library(dplyr)
+<<<<<<< HEAD
 library(plyr)
+=======
+>>>>>>> b6148413628ca01bb4cede3d1574e758526e1deb
 library(tidyverse)
 library(Rtsne)
 library(mlr3pipelines)
