@@ -6,6 +6,8 @@ We now examine whether a given `yes` for `two_yr_recid` observation will change
 to a `no` for the generated counterfactuals (with `race` changed to `Caucasian` from `African-American`).
 
 ``` r
+library(dplyr)
+library(plyr)
 library(tidyverse)
 library(Rtsne)
 library(mlr3pipelines)
@@ -45,7 +47,7 @@ Now we set up an object of the counterfactual fairness test method we want
 to use. Here we use `FairnessTest`
 
 ``` r
-fairness_obj = FairnessTest$new(predictor, df = compas, column = "race", row_num = 17L, desired_class = "Caucasian", n_generations = 100)
+fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "race", n_generations = 175)
 ```
 
 For `x_interest` the model predicts:
@@ -60,7 +62,7 @@ For `x_interest` the model predicts:
 We use the `$get_difference()` method to find difference of predictions of the  `x_interest` and the counterfactuals.
 
 ``` r
-difference = fairness_obj$get_difference()
+difference = fairness_obj$get_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
 ```
 
 We can also use `$print_prediction()` method to look into the predictions for both `x_interest` and the generated counterfactuals

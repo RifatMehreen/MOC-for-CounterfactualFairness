@@ -20,9 +20,9 @@ if (require("randomForest")) {
   # Create a predictor object
   predictor = iml::Predictor$new(rf, type = "prob")
   # Find differences of the prediction of counterfactuals and original instance 
-  fairness_obj = FairnessTest$new(predictor, df = compas, column = "race", row_num = 17L, desired_class = "Caucasian", n_generations = 175)
+  fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "race", row_num = 17L, n_generations = 175)
   # Print the results
-  difference = fairness_obj$get_difference()
+  difference = fairness_obj$get_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
   print(difference)
 }
 
@@ -64,9 +64,7 @@ Create a new FairnessTest object.
 \if{html}{\out{<div class="r">}}\preformatted{FairnessTest$new(
   predictor = NULL,
   df = NULL,
-  column = NULL,
-  row_num = NULL,
-  desired_class = NULL,
+  sensitive_attribute = NULL,
   epsilon = NULL,
   fixed_features = NULL,
   max_changed = NULL,
@@ -96,13 +94,13 @@ The original predictor where as response variable we use \code{Two_yr_Recidivism
 \item{\code{df}}{(dataframe)\cr
 The dataset or dataframe for the prediction}
 
-\item{\code{column}}{(string)\cr
-The name of protected column.}
+\item{\code{sensitive_attribute}}{(string)\cr
+The name of sensitive_attribute.}
 
 \item{\code{row_num}}{(numeric())\cr
 The row number of instance of interest \code{x_interest}.}
 
-\item{\code{desired_class}}{(string)\cr
+\item{\code{desired_level}}{(string)\cr
 The desired class we want to have in our counterfactuals}
 }
 \if{html}{\out{</div>}}
@@ -114,7 +112,7 @@ The desired class we want to have in our counterfactuals}
 \subsection{Method \code{get_difference()}}{
 Creates a dataframe with the differences of predictions
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_difference()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_difference(x_interest, desired_level, desired_prob)}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
@@ -179,7 +177,7 @@ mean of the prediction of the counterfactuals as the opposite of the x_interest
 \subsection{Method \code{plot_tSNE()}}{
 plots tSNE
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$plot_tSNE()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$plot_tSNE(x_interest)}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
