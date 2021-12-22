@@ -13,7 +13,7 @@
 #'   # Create a predictor object
 #'   predictor = iml::Predictor$new(rf, type = "prob")
 #'   # Find differences of the prediction of counterfactuals and original instance 
-#'   fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "race", row_num = 17L, n_generations = 175)
+#'   fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "race", n_generations = 175)
 #'   # Print the results
 #'   difference = fairness_obj$get_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
 #'   print(difference)
