@@ -2,7 +2,6 @@
 
 export(CounterfactualMethodClassif)
 export(FairnessTest)
-export(FairnessTestAdult)
 export(MOCClassif)
 export(NICEClassif)
 import(R6)

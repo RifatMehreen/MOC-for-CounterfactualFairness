@@ -20,7 +20,7 @@ if (require("randomForest")) {
   # Create a predictor object
   predictor = iml::Predictor$new(rf, type = "prob")
   # Find differences of the prediction of counterfactuals and original instance 
-  fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "race", row_num = 17L, n_generations = 175)
+  fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "race", n_generations = 175)
   # Print the results
   difference = fairness_obj$get_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
   print(difference)
@@ -40,7 +40,6 @@ if (require("randomForest")) {
 \item \href{#method-print_counterfactuals}{\code{FairnessTest$print_counterfactuals()}}
 \item \href{#method-prediction_percentages}{\code{FairnessTest$prediction_percentages()}}
 \item \href{#method-get_cfactuals_mean}{\code{FairnessTest$get_cfactuals_mean()}}
-\item \href{#method-plot_tSNE}{\code{FairnessTest$plot_tSNE()}}
 \item \href{#method-clone}{\code{FairnessTest$clone()}}
 }
 }
@@ -149,13 +148,13 @@ prints the generated counterfactuals
 \if{html}{\out{<a id="method-prediction_percentages"></a>}}
 \if{latex}{\out{\hypertarget{method-prediction_percentages}{}}}
 \subsection{Method \code{prediction_percentages()}}{
-plots a bar plot for the predictions
+prints the percentage for the predictions
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$prediction_percentages()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$prediction_percentages(x_interest)}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
-A barplot for the predictions
+the percentage for the predictions of generated counterfactuals
 }
 }
 \if{html}{\out{<hr>}}
@@ -169,19 +168,7 @@ returns mean of the prediction of the counterfactuals as the opposite of the x_i
 
 \subsection{Returns}{
 mean of the prediction of the counterfactuals as the opposite of the x_interest
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot_tSNE"></a>}}
-\if{latex}{\out{\hypertarget{method-plot_tSNE}{}}}
-\subsection{Method \code{plot_tSNE()}}{
-plots tSNE
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$plot_tSNE(x_interest)}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-tSNE plot for the dataset with counterfactuals and x_interest
+*** need to change here.....
 }
 }
 \if{html}{\out{<hr>}}
