@@ -35,11 +35,7 @@ get_difference <- function(predictor, df, column, row_num, desired_class){
   df_pred_prot = as.data.frame(pred_cfactuals_protected)
   df_merged = cbind(df, df_pred_prot)
   df_merged$diff_from_instance = ((df_merged[, 8]) - (pred_x_interest[, 1]))
-  # print("Number of counterfactuals")
-  # print(nrow(df_merged))
   df_merged = subset(df_merged, no >= 0.5)
-  # print("Number of counterfactuals whose prediction as 'no' has probability > 0.5")
-  # print(nrow(df_merged))
   df_merged <- df_merged[order(-no),]
 }
 
