@@ -254,7 +254,7 @@ MOCClassif = R6::R6Class("MOCClassif", inherit = CounterfactualMethodClassif,
      cat(" - p_rec: ", private$p_rec, "\n")
      cat(" - p_rec_gen: ", private$p_rec_gen, "\n")
      cat(" - p_rec_use_orig: ", private$p_rec_use_orig, "\n")
-     cat(" - upper: ", private$upper)
+     cat(" - upper: ", private$upper, "\n")
      cat(" - weights: ", private$weights, "\n")
    }
   )
