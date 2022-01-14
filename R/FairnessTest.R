@@ -185,8 +185,8 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
        #                                                  color="green", inherit.aes = FALSE) + theme(legend.position="bottom")
        
        # adult dataset
-       ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes(shape=race, color=sex, size=type)) +
-       scale_size_manual(values=c(3,1,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
+       ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes_string(shape=factor_var_list[1], color=factor_var_list[2], size="type")) +
+       scale_size_manual(values=c(6,1,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
                                                         color="green", inherit.aes = FALSE) + theme(legend.position="bottom")
    },
    
