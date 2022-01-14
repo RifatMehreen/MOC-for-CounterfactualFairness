@@ -119,7 +119,77 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      # return the dataframe with distance
      return(df_merged)
    },
-  
+   
+   plot_tSNE = function(df_new, x_interest, factor_var_list){
+     predictor = self$predictor
+     df_data = as.data.frame(df_new)
+     df_data["type"] = "original data"
+     
+     y = predictor$data$y.names
+     idx_y = which(data.frame(colnames(x_interest)) == y)
+     x_interest_wo_tyr <- subset(x_interest, select = -c(idx_y))
+     row_num = as.integer(row.names(match_df(df_data, x_interest_wo_tyr)))
+     df_data[row_num, ]$type = "x_interest"
+     cf_data = private$get_counterfactuals()
+     cf_data["type"] = "counterfactuals"
+     df_data <- subset(df_data, select = -c(idx_y))
+     
+     df_merged = rbind(cf_data, df_data)
+     df_merged <- df_merged %>% distinct()
+     df_merged$type = as.factor(df_merged$type)
+
+     df_merged <- df_merged %>%
+       drop_na() %>%
+       dplyr::mutate(ID=row_number())
+
+     recidivism_meta <- df_merged %>%
+       select(c(ID, factor_var_list, type))
+
+     df_merged <- df_merged %>% distinct()
+     df_merged <- df_merged %>% drop_na()
+
+     df_data = as.data.frame(model.matrix(~., df_merged))
+     rownames(df_data) = NULL
+     # print(df_data)
+
+     set.seed(142)
+     # browser()
+     tSNE_fit <- df_data %>%
+       select(where(is.numeric)) %>%
+       column_to_rownames("ID") %>%
+       as.data.frame() %>%
+       # print() %>%
+       drop_na() %>%
+       Rtsne::Rtsne(check_duplicates = FALSE)
+
+     tSNE_df <- tSNE_fit$Y %>%
+       as.data.frame() %>%
+       dplyr::rename(tSNE1="V1",
+                     tSNE2="V2") %>%
+       dplyr::mutate(ID=row_number())
+
+     tSNE_df <- tSNE_df %>%
+       dplyr::inner_join(recidivism_meta, by="ID")
+
+     # print(tSNE_df %>% head())
+
+     idx = which(tSNE_df$type == "x_interest")
+
+     library(ggplot2)
+     tSNE_df %>%
+       # change the color to the discriminated feature
+       # change the shape to the other variable
+       # compas dataset
+       # ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes(shape=sex, color=race, size=type)) +
+       # scale_size_manual(values=c(3,1,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
+       #                                                  color="green", inherit.aes = FALSE) + theme(legend.position="bottom")
+       
+       # adult dataset
+       ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes(shape=race, color=sex, size=type)) +
+       scale_size_manual(values=c(3,1,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
+                                                        color="green", inherit.aes = FALSE) + theme(legend.position="bottom")
+   },
+   
    #' @description 
    #' returns a dataframe with the required column for tSNE plot
    #' 

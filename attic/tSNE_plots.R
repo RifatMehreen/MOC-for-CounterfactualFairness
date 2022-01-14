@@ -41,13 +41,14 @@ plot_tSNE = function(name = "compas"){
   
   df_merged = rbind(cf_data, df_data)
   df_merged <- df_merged %>% distinct()
+  df_merged$type = as.factor(df_merged$type)
   
   df_merged <- df_merged %>%
     drop_na() %>%
     dplyr::mutate(ID=row_number())
   
   recidivism_meta <- df_merged %>%
-    select(ID, type, race, sex)
+    select(c(ID, names(Filter(is.factor,df_merged))))
   
   y = predictor$data$y.names
 
