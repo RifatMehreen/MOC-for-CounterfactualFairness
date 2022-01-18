@@ -90,7 +90,6 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      
      # without the response variable
      dataframe = private$get_dataframe_wo_response(predictor, x_interest, dataframe)
-     # print(dataframe)
      
      set.seed(142)
      # predicting the original instance
@@ -112,16 +111,12 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      name_col = names(pred_x_interest[idx_pred])
      self$idx_col = which(names(df_merged)==name_col)
      df_merged = df_merged[as.vector(df_merged[[self$idx_col]]) > 0.5, ]
-     #print(name_col)
      df_merged$diff_from_instance = ((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
 
-     # df_merged consists only of those whose prediction (for "No" here) is greater than 0.5
-
-     # return the dataframe with distance
      return(df_merged)
    },
    
-   plot_tSNE = function(df_new, x_interest, factor_var_list){
+   plot_tSNE = function(df_new, x_interest, fac_var = NULL, sen_attribute){
      predictor = self$predictor
      df_data = as.data.frame(df_new)
      df_data["type"] = "original data"
@@ -144,7 +139,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
        dplyr::mutate(ID=row_number())
 
      recidivism_meta <- df_merged %>%
-       select(c(ID, factor_var_list, type))
+       select(c(ID, fac_var, sen_attribute, type))
 
      df_merged <- df_merged %>% distinct()
      df_merged <- df_merged %>% drop_na()
@@ -176,18 +171,23 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      idx = which(tSNE_df$type == "x_interest")
 
      library(ggplot2)
-     tSNE_df %>%
-       # change the color to the discriminated feature
-       # change the shape to the other variable
-       # compas dataset
-       # ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes(shape=sex, color=race, size=type)) +
-       # scale_size_manual(values=c(3,1,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
-       #                                                  color="green", inherit.aes = FALSE) + theme(legend.position="bottom")
+     # change the color to the discriminated feature
+     # change the shape to the other variable
+     if(!is.null(fac_var)){
+       tSNE_df %>%
+       ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes_string(shape=fac_var, color=sen_attribute, size="type")) +
+         scale_size_manual(values=c(6,1,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
+                                                          color="green", inherit.aes = FALSE) + theme(legend.position="bottom")
        
-       # adult dataset
-       ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes_string(shape=factor_var_list[1], color=factor_var_list[2], size="type")) +
-       scale_size_manual(values=c(6,1,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
-                                                        color="green", inherit.aes = FALSE) + theme(legend.position="bottom")
+     }
+     
+     else{
+       tSNE_df %>%
+       ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes_string(shape=sen_attribute, color=sen_attribute, size="type")) +
+         scale_size_manual(values=c(6,1,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
+                                                          color="green", inherit.aes = FALSE) + theme(legend.position="bottom")
+
+     }
    },
    
    #' @description 

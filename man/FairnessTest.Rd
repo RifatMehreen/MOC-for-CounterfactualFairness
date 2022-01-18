@@ -36,10 +36,13 @@ if (require("randomForest")) {
 \itemize{
 \item \href{#method-new}{\code{FairnessTest$new()}}
 \item \href{#method-get_difference}{\code{FairnessTest$get_difference()}}
+\item \href{#method-plot_tSNE}{\code{FairnessTest$plot_tSNE()}}
 \item \href{#method-print_prediction}{\code{FairnessTest$print_prediction()}}
 \item \href{#method-print_counterfactuals}{\code{FairnessTest$print_counterfactuals()}}
 \item \href{#method-prediction_percentages}{\code{FairnessTest$prediction_percentages()}}
 \item \href{#method-get_cfactuals_mean}{\code{FairnessTest$get_cfactuals_mean()}}
+\item \href{#method-get_cfactuals_count}{\code{FairnessTest$get_cfactuals_count()}}
+\item \href{#method-get_summary}{\code{FairnessTest$get_summary()}}
 \item \href{#method-clone}{\code{FairnessTest$clone()}}
 }
 }
@@ -119,6 +122,15 @@ A dataframe with the differences of predictions of the original instance and the
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot_tSNE"></a>}}
+\if{latex}{\out{\hypertarget{method-plot_tSNE}{}}}
+\subsection{Method \code{plot_tSNE()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$plot_tSNE(df_new, x_interest, fac_var = NULL, sen_attribute)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print_prediction"></a>}}
 \if{latex}{\out{\hypertarget{method-print_prediction}{}}}
 \subsection{Method \code{print_prediction()}}{
@@ -168,8 +180,25 @@ returns mean of the prediction of the counterfactuals as the opposite of the x_i
 
 \subsection{Returns}{
 mean of the prediction of the counterfactuals as the opposite of the x_interest
-*** need to change here.....
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_cfactuals_count"></a>}}
+\if{latex}{\out{\hypertarget{method-get_cfactuals_count}{}}}
+\subsection{Method \code{get_cfactuals_count()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_cfactuals_count()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_summary"></a>}}
+\if{latex}{\out{\hypertarget{method-get_summary}{}}}
+\subsection{Method \code{get_summary()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_summary()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
