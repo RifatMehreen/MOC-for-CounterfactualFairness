@@ -125,6 +125,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      idx_y = which(data.frame(colnames(x_interest)) == y)
      x_interest_wo_tyr <- subset(x_interest, select = -c(idx_y))
      row_num = as.integer(row.names(match_df(df_data, x_interest_wo_tyr)))
+     print(row_num)
      df_data[row_num, ]$type = "x_interest"
      cf_data = private$get_counterfactuals()
      cf_data["type"] = "counterfactuals"
