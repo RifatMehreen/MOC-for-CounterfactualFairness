@@ -83,6 +83,10 @@ generate_counterfactuals_NICE = function(df, predictor, x_interest, sensitive_at
   colnames(d)[1] <- level[1]
   colnames(d)[2] <- level[2]
   
+  print("prediction percentages:")
   print(d)
+  
+  print("counterfactuals mean")
+  return(mean(data_tSNE[[self$idx_col]]))
 
 }

@@ -249,7 +249,9 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    
    get_cfactuals_mean = function(){
      data_tSNE = self$data_tSNE
-     return(mean(data_tSNE[[self$idx_col]]))
+     m = mean(data_tSNE[[self$idx_col]])
+     m_rounded = round(m, digits = 2)
+     return(m_rounded)
    },
    
    get_cfactuals_count = function(){
@@ -257,13 +259,15 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      self$cf_count = nrow(data_tSNE)
      # print(self$cf_count)
      return(nrow(data_tSNE))
-   },
-   
-   get_summary = function(){
-     cf_count = self$cf_count
-     print(cf_count)
-     print(paste0("Number of total counterfactuals: ", cf_count))
    }
+   
+   # get_summary = function(){
+   #   if (is.null(self$cf_count)) {
+   #     stop("There are no results yet. Please run `$get_cfactuals_count()` first.")
+   #   }
+   #   cf_count = self$cf_count
+   #   print(paste0("Number of total counterfactuals: ", cf_count))
+   # }
   ),
   
   private = list(
