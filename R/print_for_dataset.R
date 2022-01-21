@@ -1,6 +1,6 @@
 print_for_dataset_MOC = function(main_data, df, y, sen_attribute, desired_level, n_generation, desired_prob){
   final_df <- data.frame(matrix(ncol = 3, nrow = nrow(df)))
-  colnames(final_df) <- c('counterfactuals_mean', 'total_cf', 'execution_time(s)')
+  colnames(final_df) <- c('prediction_mean', 'total_cf', 'execution_time(s)')
   
   for (i in 1:nrow(df)){
     startTime <- Sys.time()
@@ -19,7 +19,7 @@ print_for_dataset_MOC = function(main_data, df, y, sen_attribute, desired_level,
     
     final_df[[1]][i] = fairness_obj$get_cfactuals_mean()
     final_df[[2]][i] = fairness_obj$get_cfactuals_count()
-    final_df[[3]][i] = endTime - startTime
+    final_df[[3]][i] = round((endTime - startTime),2)
     
     percentage = fairness_obj$prediction_percentages(x_interest)
     if(i==1){
@@ -39,7 +39,7 @@ print_for_dataset_MOC = function(main_data, df, y, sen_attribute, desired_level,
 
 print_for_dataset_NICE = function(main_data, df, y, sen_attribute, desired_level, n_generation, desired_prob){
   final_df <- data.frame(matrix(ncol = 3, nrow = nrow(df)))
-  colnames(final_df) <- c('counterfactuals_mean', 'total_cf', 'execution_time(s)')
+  colnames(final_df) <- c('prediction_mean', 'total_cf', 'execution_time(s)')
   
   for (i in 1:nrow(df)){
     startTime <- Sys.time()
@@ -98,7 +98,7 @@ print_for_dataset_NICE = function(main_data, df, y, sen_attribute, desired_level
     
     final_df[[1]][i] = mean(df_merged[[idx_col]])
     final_df[[2]][i] = nrow(data_cfactuals)
-    final_df[[3]][i] = endTime - startTime
+    final_df[[3]][i] = round((endTime - startTime),2)
     
     level = names(pred_x_interest)
     # print(level)
@@ -132,6 +132,6 @@ print_for_dataset_NICE = function(main_data, df, y, sen_attribute, desired_level
     
   }
   
-  return(final_df)
+  return(cbind(df, final_df))
   
 }
