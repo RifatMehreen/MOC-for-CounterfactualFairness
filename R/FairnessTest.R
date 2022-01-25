@@ -40,11 +40,12 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    predictor = NULL,
    df = NULL,
    sensitive_attribute = NULL,
-   data_tSNE = NULL,
+   cfs = NULL,
    row_num = NULL,
    n_generations = NULL,
    idx_col = NULL,
-   cf_count = NULL,
+   # cf_count = NULL,
+   pred_diff = NULL,
    initialize = function(predictor = NULL, df = NULL, sensitive_attribute = NULL, epsilon = NULL, fixed_features = NULL, max_changed = NULL, mu = 20L, 
                          n_generations = 175L, p_rec = 0.57, p_rec_gen = 0.85, p_rec_use_orig = 0.88, p_mut = 0.79, 
                          p_mut_gen = 0.56, p_mut_use_orig = 0.32, k = 1L, weights = NULL, lower = NULL, upper = NULL, 
@@ -57,9 +58,10 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      self$df <- df
      self$sensitive_attribute <- sensitive_attribute
      self$n_generations <- n_generations
-     self$data_tSNE <- NULL
+     self$cfs <- NULL
      self$idx_col <- NULL
-     self$cf_count <- NULL
+     #self$cf_count <- NULL
+     self$pred_diff <-NULL
      },
 
    #' @description 
@@ -90,6 +92,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      
      # without the response variable
      dataframe = private$get_dataframe_wo_response(predictor, x_interest, dataframe)
+     self$cfs = dataframe
      
      set.seed(142)
      # predicting the original instance
@@ -102,17 +105,15 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
 
      # calculating the distances
      df_merged = cbind(dataframe, df_pred_prot)
-
-     # this is for tSNE plot
-     self$data_tSNE = df_merged
+     
 
      # this `no` is for column name of probability of no.
      idx_pred = which(pred_x_interest<=0.5)
      name_col = names(pred_x_interest[idx_pred])
      self$idx_col = which(names(df_merged)==name_col)
-     df_merged = df_merged[as.vector(df_merged[[self$idx_col]]) > 0.5, ]
+     # df_merged = df_merged[as.vector(df_merged[[self$idx_col]]) > 0.5, ]
      df_merged$diff_from_instance = ((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
-
+     self$pred_diff = df_merged$diff_from_instance
      return(df_merged)
    },
    
@@ -248,17 +249,16 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    #' @return mean of the prediction of the counterfactuals as the opposite of the x_interest
    
    get_cfactuals_mean = function(){
-     data_tSNE = self$data_tSNE
-     m = mean(data_tSNE[[self$idx_col]])
+     data = self$pred_diff
+     m = mean(data)
      m_rounded = round(m, digits = 2)
      return(m_rounded)
    },
    
    get_cfactuals_count = function(){
-     data_tSNE = self$data_tSNE
-     self$cf_count = nrow(data_tSNE)
-     # print(self$cf_count)
-     return(nrow(data_tSNE))
+     data_cfs = self$cfs
+     #self$cf_count = nrow(data_cfs)
+     return(nrow(data_cfs))
    }
    
    # get_summary = function(){
@@ -276,9 +276,9 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
     #' 
     #' @return the generated counterfactuals
     get_counterfactuals = function(){
-      cf_data = self$data_tSNE
+      cf_data = self$cfs
       cf_data = as.data.frame(cf_data)
-      cf_data = cf_data[1:(length(cf_data)-2)]
+      # cf_data = cf_data[1:(length(cf_data)-2)]
       return(cf_data)
     },
     
@@ -316,7 +316,10 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
       cfactuals = moc_classif$find_counterfactuals(x_interest, desired_class = desired_level, desired_prob = desired_prob)
     },
     
-    
+    #' @description 
+    #' creating a new dataframe without the response variable
+    #' 
+    #' @return the dataframe without response variable
     get_dataframe_wo_response = function(predictor, x_interest, dataframe){
       y = predictor$data$y.names
       idx_y = which(data.frame(colnames(x_interest)) == y)
