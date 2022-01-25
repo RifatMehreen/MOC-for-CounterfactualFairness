@@ -15,7 +15,7 @@
 #'   # Find differences of the prediction of counterfactuals and original instance 
 #'   fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "race", n_generations = 175)
 #'   # Print the results
-#'   difference = fairness_obj$get_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
+#'   difference = fairness_obj$get_prediction_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
 #'   print(difference)
 #' }
 #' 
@@ -27,13 +27,11 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    #' @description Create a new FairnessTest object.
    #' @template predictor
    #' @param predictor (`iml predictor`)\cr
-   #' The original predictor where as response variable we use `Two_yr_Recidivism`.
+   #' The predictor
    #' @param df (dataframe)\cr
    #' The dataset or dataframe for the prediction
    #' @param sensitive_attribute (string)\cr
    #' The name of sensitive_attribute.
-   #' @param row_num (numeric())\cr
-   #' The row number of instance of interest `x_interest`.
    #' @param desired_level (string)\cr
    #' The desired class we want to have in our counterfactuals
    
@@ -41,10 +39,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    df = NULL,
    sensitive_attribute = NULL,
    cfs = NULL,
-   row_num = NULL,
    n_generations = NULL,
-   idx_col = NULL,
-   # cf_count = NULL,
    pred_diff = NULL,
    initialize = function(predictor = NULL, df = NULL, sensitive_attribute = NULL, epsilon = NULL, fixed_features = NULL, max_changed = NULL, mu = 20L, 
                          n_generations = 175L, p_rec = 0.57, p_rec_gen = 0.85, p_rec_use_orig = 0.88, p_mut = 0.79, 
@@ -59,8 +54,6 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      self$sensitive_attribute <- sensitive_attribute
      self$n_generations <- n_generations
      self$cfs <- NULL
-     self$idx_col <- NULL
-     #self$cf_count <- NULL
      self$pred_diff <-NULL
      },
 
@@ -69,7 +62,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    #' 
    #' @return A dataframe with the differences of predictions of the original instance and the counterfactuals
    
-   get_difference = function(x_interest, desired_level, desired_prob){
+   get_prediction_difference = function(x_interest, desired_level, desired_prob){
      predictor = self$predictor
      df = self$df
      sensitive_attribute = self$sensitive_attribute
@@ -108,16 +101,17 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      
 
      # this `no` is for column name of probability of no.
-     idx_pred = which(pred_x_interest<=0.5)
-     name_col = names(pred_x_interest[idx_pred])
-     self$idx_col = which(names(df_merged)==name_col)
+     n = predictor$data$y.names
+     c = names(pred_x_interest)
+     name_col = c[c!=x_interest[[n]]]
+     # idx_col = which(names(df_merged)==name_col)
      # df_merged = df_merged[as.vector(df_merged[[self$idx_col]]) > 0.5, ]
      df_merged$diff_from_instance = ((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
      self$pred_diff = df_merged$diff_from_instance
      return(df_merged)
    },
    
-   plot_tSNE = function(df_new, x_interest, fac_var = NULL, sen_attribute){
+   plot_tSNE = function(df_new, x_interest, factor_variable = NULL, sen_attribute){
      predictor = self$predictor
      df_data = as.data.frame(df_new)
      df_data["type"] = "original data"
@@ -126,7 +120,6 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      idx_y = which(data.frame(colnames(x_interest)) == y)
      x_interest_wo_tyr <- subset(x_interest, select = -c(idx_y))
      row_num = as.integer(row.names(match_df(df_data, x_interest_wo_tyr)))
-     print(row_num)
      df_data[row_num, ]$type = "x_interest"
      cf_data = private$get_counterfactuals()
      cf_data["type"] = "counterfactuals"
@@ -141,7 +134,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
        dplyr::mutate(ID=row_number())
 
      recidivism_meta <- df_merged %>%
-       select(c(ID, fac_var, sen_attribute, type))
+       select(c(ID, factor_variable, sen_attribute, type))
 
      df_merged <- df_merged %>% distinct()
      df_merged <- df_merged %>% drop_na()
@@ -175,11 +168,11 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      library(ggplot2)
      # change the color to the discriminated feature
      # change the shape to the other variable
-     if(!is.null(fac_var)){
+     if(!is.null(factor_variable)){
        tSNE_df %>%
-       ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes_string(shape=fac_var, color=sen_attribute, size="type")) +
-         scale_size_manual(values=c(6,1,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
-                                                          color="green", inherit.aes = FALSE) + theme(legend.position="bottom")
+       ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes_string(shape=factor_variable, color=sen_attribute, size="type")) +
+         scale_size_manual(values=c(5,1,3)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
+                                                          color="green", inherit.aes = FALSE) + theme_light(base_size=16)+ theme(legend.position="bottom")   
        
      }
      
@@ -187,7 +180,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
        tSNE_df %>%
        ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes_string(shape=sen_attribute, color=sen_attribute, size="type")) +
          scale_size_manual(values=c(6,1,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
-                                                          color="green", inherit.aes = FALSE) + theme(legend.position="bottom")
+                                                          color="green", inherit.aes = FALSE) + theme_light(base_size=16) + theme(legend.position="bottom")
 
      }
    },
@@ -248,7 +241,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    #' 
    #' @return mean of the prediction of the counterfactuals as the opposite of the x_interest
    
-   get_cfactuals_mean = function(){
+   get_prediction_difference_mean = function(){
      data = self$pred_diff
      m = mean(data)
      m_rounded = round(m, digits = 2)

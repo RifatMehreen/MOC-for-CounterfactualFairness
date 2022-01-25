@@ -23,6 +23,7 @@ library(fairml)
 library(counterfactuals)
 library(randomForest)
 library(iml)
+library(ggforce)
 ```
 
 First, we load the data and pre-process it
@@ -64,7 +65,7 @@ For `x_interest` the model predicts:
 #> 1 0.23 0.77
 ```
 
-We use the `$get_difference()` method to find difference of predictions of the  `x_interest` and the counterfactuals.
+We use the `$get_prediction_difference()` method to find difference of predictions of the  `x_interest` and the counterfactuals.
 
 ``` r
 difference = fairness_obj$get_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
