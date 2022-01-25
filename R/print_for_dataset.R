@@ -13,12 +13,12 @@ print_for_dataset_MOC_rf = function(main_data, df, y, sen_attribute, desired_lev
     predictor = iml::Predictor$new(rf, type = "prob", data = main_data[-(row_num), ])
     
     fairness_obj = FairnessTest$new(predictor, df = main_data, sensitive_attribute = sen_attribute, n_generations = n_generation)
-    difference = fairness_obj$get_difference(x_interest, desired_level = desired_level, desired_prob = desired_prob)
+    difference = fairness_obj$get_prediction_difference(x_interest, desired_level = desired_level, desired_prob = desired_prob)
     endTime <- Sys.time()
     percentages = fairness_obj$prediction_percentages(x_interest)
     
     final_df[[1]][i] = row_num
-    final_df[[2]][i] = fairness_obj$get_cfactuals_mean()
+    final_df[[2]][i] = fairness_obj$get_prediction_difference_mean()
     final_df[[3]][i] = fairness_obj$get_cfactuals_count()
     final_df[[4]][i] = round((endTime - startTime),2)
     
@@ -65,12 +65,12 @@ print_for_dataset_MOC_log_reg = function(main_data, df, y, sen_attribute, desire
     predictor = iml::Predictor$new(learner, data = task$data(), y = y)
    
     fairness_obj = FairnessTest$new(predictor, df = main_data, sensitive_attribute = sen_attribute, n_generations = n_generation)
-    difference = try(fairness_obj$get_difference(x_interest, desired_level = desired_level, desired_prob = desired_prob))
+    difference = try(fairness_obj$get_prediction_difference(x_interest, desired_level = desired_level, desired_prob = desired_prob))
     endTime <- Sys.time()
     percentages = fairness_obj$prediction_percentages(x_interest)
     
     final_df[[1]][i] = row_num
-    final_df[[2]][i] = fairness_obj$get_cfactuals_mean()
+    final_df[[2]][i] = fairness_obj$get_prediction_difference_mean()
     final_df[[3]][i] = fairness_obj$get_cfactuals_count()
     final_df[[4]][i] = round((endTime - startTime),2)
     
@@ -118,9 +118,6 @@ print_for_dataset_NICE_rf = function(main_data, df, y, sen_attribute, desired_le
     data_archive = nice_classif$archive
     len = length(data_archive)
     cf_data = as.data.frame(data_archive[len])
-    # print("number of generated counterfactuals")
-    # print(nrow(cf_data))
-    # print(cf_data)
     data_cfactuals <- cf_data %>% filter(cf_data[desired_level] >= 0.5)
     data_cfactuals = as.data.frame(data_cfactuals)
     
@@ -128,9 +125,7 @@ print_for_dataset_NICE_rf = function(main_data, df, y, sen_attribute, desired_le
     x_interest_wo_tyr <- subset(x_interest, select = -c(idx_y_x))
     idx_y = which(data.frame(colnames(data_cfactuals)) == y)
     data_cfactuals <- subset(data_cfactuals, select = -c(idx_y))
-    
-    # print("ei je rewaerd ase naki nai bujhtesina baa")
-    # print(data_cfactuals)
+
     
     data_cfactuals <- subset(data_cfactuals, select = -c(grep("reward", colnames(data_cfactuals)):length(data_cfactuals)))
     data_cfactuals[sen_attribute] = desired_level
@@ -145,25 +140,30 @@ print_for_dataset_NICE_rf = function(main_data, df, y, sen_attribute, desired_le
     
     df_merged = cbind(data_cfactuals, pred_cfactuals)
     
-    idx_pred = which(pred_x_interest<=0.5)
-    name_col = names(pred_x_interest[idx_pred])
-    idx_col = which(names(df_merged)==name_col)
+    c = names(pred_x_interest)
+    name_col = c[c!=x_interest[[y]]]
+    
+    df_merged$diff_from_instance = ((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
     
     final_df[[1]][i] = row_num
-    final_df[[2]][i] = mean(df_merged[[idx_col]])
+    final_df[[2]][i] = mean(df_merged$diff_from_instance)
+    
+    # idx_pred = which(pred_x_interest<=0.5)
+    # name_col = names(pred_x_interest[idx_pred])
+    # idx_col = which(names(df_merged)==name_col)
+    
+    # final_df[[1]][i] = row_num
+    # final_df[[2]][i] = mean(df_merged[[idx_col]])
     final_df[[3]][i] = nrow(data_cfactuals)
     final_df[[4]][i] = round((endTime - startTime),2)
     
     level = names(pred_x_interest)
-    # print(level)
     new_data = cbind(data_cfactuals, as.data.frame(predictor$predict(data_cfactuals)))
     idx_s = which(colnames(new_data) == sen_attribute)
     new_data <- subset(new_data, select = -c(idx_s))
-    #return(new_data)
     new_data[[level[1]]] <- ifelse(new_data[[level[1]]] > 0.5, 1, 0)
     new_data[[level[2]]] <- ifelse(new_data[[level[2]]] > 0.5, 1, 0)
     percent_cf <- vector(mode = "list", length = 0)
-    # return(new_data)
     percent_cf$l1 = round(100 * (length(which(new_data[[level[1]]] == 1))/nrow(new_data)), 2)
     percent_cf$l2 = round(100 * (length(which(new_data[[level[2]]] == 1))/nrow(new_data)), 2)
     
@@ -180,7 +180,6 @@ print_for_dataset_NICE_rf = function(main_data, df, y, sen_attribute, desired_le
       final_df[name1] <- NA
       final_df[name2] <- NA
     }
-    #return(pred_cfactuals)
     final_df[[5]][i] = d[1]
     final_df[[6]][i] = d[2]
     
@@ -228,9 +227,6 @@ print_for_dataset_NICE_log_reg = function(main_data, df, y, sen_attribute, desir
     data_archive = nice_classif$archive
     len = length(data_archive)
     cf_data = as.data.frame(data_archive[len])
-    # print("number of generated counterfactuals")
-    # print(nrow(cf_data))
-    # print(cf_data)
     data_cfactuals <- cf_data %>% filter(cf_data[desired_level] >= 0.5)
     data_cfactuals = as.data.frame(data_cfactuals)
     
@@ -239,9 +235,6 @@ print_for_dataset_NICE_log_reg = function(main_data, df, y, sen_attribute, desir
     idx_y = which(data.frame(colnames(data_cfactuals)) == y)
     data_cfactuals <- subset(data_cfactuals, select = -c(idx_y))
     
-    # print("ei je rewaerd ase naki nai bujhtesina baa")
-    # print(data_cfactuals)
-    
     data_cfactuals <- subset(data_cfactuals, select = -c(grep("reward", colnames(data_cfactuals)):length(data_cfactuals)))
     data_cfactuals[sen_attribute] = desired_level
     print(x_interest_wo_tyr)
@@ -249,31 +242,34 @@ print_for_dataset_NICE_log_reg = function(main_data, df, y, sen_attribute, desir
     data_cfactuals = rbind(x_interest_wo_tyr , data_cfactuals)
     data_cfactuals = data_cfactuals[-1,]
     
-    # print("prediction probability for x_interest:")
     pred_x_interest = predictor$predict(x_interest)
     pred_cfactuals = predictor$predict(data_cfactuals)
     
     df_merged = cbind(data_cfactuals, pred_cfactuals)
     
-    idx_pred = which(pred_x_interest<=0.5)
-    name_col = names(pred_x_interest[idx_pred])
-    idx_col = which(names(df_merged)==name_col)
+    # idx_pred = which(pred_x_interest<=0.5)
+    # name_col = names(pred_x_interest[idx_pred])
+    # idx_col = which(names(df_merged)==name_col)
+    
+    c = names(pred_x_interest)
+    name_col = c[c!=x_interest[[y]]]
+    
+    df_merged$diff_from_instance = ((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
     
     final_df[[1]][i] = row_num
-    final_df[[2]][i] = mean(df_merged[[idx_col]])
+    final_df[[2]][i] = mean(df_merged$diff_from_instance)
     final_df[[3]][i] = nrow(data_cfactuals)
     final_df[[4]][i] = round((endTime - startTime),2)
     
     level = names(pred_x_interest)
-    # print(level)
     new_data = cbind(data_cfactuals, as.data.frame(predictor$predict(data_cfactuals)))
     idx_s = which(colnames(new_data) == sen_attribute)
     new_data <- subset(new_data, select = -c(idx_s))
-    #return(new_data)
+
     new_data[[level[1]]] <- ifelse(new_data[[level[1]]] > 0.5, 1, 0)
     new_data[[level[2]]] <- ifelse(new_data[[level[2]]] > 0.5, 1, 0)
     percent_cf <- vector(mode = "list", length = 0)
-    # return(new_data)
+
     percent_cf$l1 = round(100 * (length(which(new_data[[level[1]]] == 1))/nrow(new_data)), 2)
     percent_cf$l2 = round(100 * (length(which(new_data[[level[2]]] == 1))/nrow(new_data)), 2)
     
@@ -290,7 +286,7 @@ print_for_dataset_NICE_log_reg = function(main_data, df, y, sen_attribute, desir
       final_df[name1] <- NA
       final_df[name2] <- NA
     }
-    #return(pred_cfactuals)
+
     final_df[[5]][i] = d[1]
     final_df[[6]][i] = d[2]
     
