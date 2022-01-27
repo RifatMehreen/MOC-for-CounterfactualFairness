@@ -103,17 +103,17 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      # this `no` is for column name of probability of no.
      n = predictor$data$y.names
      c = names(pred_x_interest)
-     name_col = c[c!=x_interest[[n]]]
+     name_col = c[c==x_interest[[n]]]
      # idx_col = which(names(df_merged)==name_col)
      # df_merged = df_merged[as.vector(df_merged[[self$idx_col]]) > 0.5, ]
-     df_merged$diff_from_instance = ((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
+     df_merged$diff_from_instance = abs((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
      self$pred_diff = df_merged$diff_from_instance
      return(df_merged)
    },
    
-   plot_tSNE = function(df_new, x_interest, factor_variable = NULL, sen_attribute){
+   plot_tSNE = function(x_interest, factor_variable = NULL, sen_attribute){
      predictor = self$predictor
-     df_data = as.data.frame(df_new)
+     df_data = as.data.frame(self$df)
      df_data["type"] = "original data"
      
      y = predictor$data$y.names

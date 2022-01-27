@@ -22,7 +22,7 @@ if (require("randomForest")) {
   # Find differences of the prediction of counterfactuals and original instance 
   fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "race", n_generations = 175)
   # Print the results
-  difference = fairness_obj$get_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
+  difference = fairness_obj$get_prediction_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
   print(difference)
 }
 
@@ -35,14 +35,13 @@ if (require("randomForest")) {
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{FairnessTest$new()}}
-\item \href{#method-get_difference}{\code{FairnessTest$get_difference()}}
+\item \href{#method-get_prediction_difference}{\code{FairnessTest$get_prediction_difference()}}
 \item \href{#method-plot_tSNE}{\code{FairnessTest$plot_tSNE()}}
 \item \href{#method-print_prediction}{\code{FairnessTest$print_prediction()}}
 \item \href{#method-print_counterfactuals}{\code{FairnessTest$print_counterfactuals()}}
 \item \href{#method-prediction_percentages}{\code{FairnessTest$prediction_percentages()}}
-\item \href{#method-get_cfactuals_mean}{\code{FairnessTest$get_cfactuals_mean()}}
+\item \href{#method-get_prediction_difference_mean}{\code{FairnessTest$get_prediction_difference_mean()}}
 \item \href{#method-get_cfactuals_count}{\code{FairnessTest$get_cfactuals_count()}}
-\item \href{#method-get_summary}{\code{FairnessTest$get_summary()}}
 \item \href{#method-clone}{\code{FairnessTest$clone()}}
 }
 }
@@ -91,16 +90,13 @@ Create a new FairnessTest object.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{predictor}}{(\verb{iml predictor})\cr
-The original predictor where as response variable we use \code{Two_yr_Recidivism}.}
+The predictor}
 
 \item{\code{df}}{(dataframe)\cr
 The dataset or dataframe for the prediction}
 
 \item{\code{sensitive_attribute}}{(string)\cr
 The name of sensitive_attribute.}
-
-\item{\code{row_num}}{(numeric())\cr
-The row number of instance of interest \code{x_interest}.}
 
 \item{\code{desired_level}}{(string)\cr
 The desired class we want to have in our counterfactuals}
@@ -109,12 +105,12 @@ The desired class we want to have in our counterfactuals}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_difference"></a>}}
-\if{latex}{\out{\hypertarget{method-get_difference}{}}}
-\subsection{Method \code{get_difference()}}{
+\if{html}{\out{<a id="method-get_prediction_difference"></a>}}
+\if{latex}{\out{\hypertarget{method-get_prediction_difference}{}}}
+\subsection{Method \code{get_prediction_difference()}}{
 Creates a dataframe with the differences of predictions
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_difference(x_interest, desired_level, desired_prob)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_prediction_difference(x_interest, desired_level, desired_prob)}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
@@ -126,7 +122,7 @@ A dataframe with the differences of predictions of the original instance and the
 \if{latex}{\out{\hypertarget{method-plot_tSNE}{}}}
 \subsection{Method \code{plot_tSNE()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$plot_tSNE(df_new, x_interest, fac_var = NULL, sen_attribute)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$plot_tSNE(x_interest, factor_variable = NULL, sen_attribute)}\if{html}{\out{</div>}}
 }
 
 }
@@ -170,12 +166,12 @@ the percentage for the predictions of generated counterfactuals
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_cfactuals_mean"></a>}}
-\if{latex}{\out{\hypertarget{method-get_cfactuals_mean}{}}}
-\subsection{Method \code{get_cfactuals_mean()}}{
+\if{html}{\out{<a id="method-get_prediction_difference_mean"></a>}}
+\if{latex}{\out{\hypertarget{method-get_prediction_difference_mean}{}}}
+\subsection{Method \code{get_prediction_difference_mean()}}{
 returns mean of the prediction of the counterfactuals as the opposite of the x_interest
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_cfactuals_mean()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_prediction_difference_mean()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
@@ -188,15 +184,6 @@ mean of the prediction of the counterfactuals as the opposite of the x_interest
 \subsection{Method \code{get_cfactuals_count()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_cfactuals_count()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_summary"></a>}}
-\if{latex}{\out{\hypertarget{method-get_summary}{}}}
-\subsection{Method \code{get_summary()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_summary()}\if{html}{\out{</div>}}
 }
 
 }
