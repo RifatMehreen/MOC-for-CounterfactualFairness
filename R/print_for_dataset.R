@@ -1,6 +1,6 @@
-print_for_dataset_MOC_rf = function(main_data, df, y, sen_attribute, desired_level, n_generation, desired_prob){
-  final_df <- data.frame(matrix(ncol = 5, nrow = nrow(df)))
-  colnames(final_df) <- c('instance', 'prediction_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
+print_for_dataset_MOC_rf = function(main_data, df, y, sen_attribute, desired_level, fixed_features, n_generation, desired_prob){
+  final_df <- data.frame(matrix(ncol = 6, nrow = nrow(df)))
+  colnames(final_df) <- c('instance_id', 'pred_x_interest', 'pred_prob_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
   
   for (i in 1:nrow(df)){
     startTime <- Sys.time()
@@ -12,22 +12,25 @@ print_for_dataset_MOC_rf = function(main_data, df, y, sen_attribute, desired_lev
     set.seed(142)
     rf = randomForest(est, data = main_data[-(row_num), ])
     predictor = iml::Predictor$new(rf, type = "prob", data = main_data[-(row_num), ])
-    pred_x = as.data.frame(predictor$predict(x_interest))
+    pred_x_interest = predictor$predict(x_interest)
     
-    n = predictor$data$y.names
-    c = names(pred_x)
-    name_col = c[c==x_interest[[n]]]
+    # n = predictor$data$y.names
+    # c = names(pred_x)
+    # name_col = c[c==x_interest[[n]]]
+    idx_pred = which(pred_x_interest>=0.5)
+    name_col = names(pred_x_interest[idx_pred])
     
-    fairness_obj = FairnessTest$new(predictor, df = main_data, sensitive_attribute = sen_attribute, n_generations = n_generation)
-    difference = fairness_obj$get_prediction_difference(x_interest, desired_level = desired_level, desired_prob = desired_prob)
+    fairness_obj = FairnessTest$new(predictor, df = main_data, sensitive_attribute = sen_attribute, fixed_features = fixed_features, n_generations = n_generation)
+    difference = fairness_obj$get_prediction_difference(x_interest, desired_level = desired_level, desired_prob = desired_prob, fixed_features = fixed_features)
     endTime <- Sys.time()
     percentages = fairness_obj$prediction_percentages(x_interest)
     
     final_df[[1]][i] = row_num
-    final_df[[2]][i] = pred_x[, name_col]
-    final_df[[3]][i] = fairness_obj$get_prediction_difference_mean()
-    final_df[[4]][i] = fairness_obj$get_cfactuals_count()
-    final_df[[5]][i] = round((endTime - startTime),2)
+    final_df[[2]][i] = name_col
+    final_df[[3]][i] = pred_x_interest[, name_col]
+    final_df[[4]][i] = fairness_obj$get_prediction_difference_mean()
+    final_df[[5]][i] = fairness_obj$get_cfactuals_count()
+    final_df[[6]][i] = round((endTime - startTime),2)
     
     percentage = fairness_obj$prediction_percentages(x_interest)
     if(i==1){
@@ -37,8 +40,8 @@ print_for_dataset_MOC_rf = function(main_data, df, y, sen_attribute, desired_lev
       final_df[name2] <- NA
     }
     
-    final_df[[6]][i] = percentage[[1]]
-    final_df[[7]][i] = percentage[[2]]
+    final_df[[7]][i] = percentage[[1]]
+    final_df[[8]][i] = percentage[[2]]
     
   }
   # return(cbind(df, final_df))
@@ -46,9 +49,9 @@ print_for_dataset_MOC_rf = function(main_data, df, y, sen_attribute, desired_lev
   
 }
 
-print_for_dataset_MOC_log_reg = function(main_data, df, y, sen_attribute, desired_level, n_generation, desired_prob){
-  final_df <- data.frame(matrix(ncol = 5, nrow = nrow(df)))
-  colnames(final_df) <- c('instance', 'prediction_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
+print_for_dataset_MOC_log_reg = function(main_data, df, y, sen_attribute, desired_level, fixed_features, n_generation, desired_prob){
+  final_df <- data.frame(matrix(ncol = 6, nrow = nrow(df)))
+  colnames(final_df) <- c('instance_id', 'pred_x_interest', 'pred_prob_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
   
   for (i in 1:nrow(df)){
     startTime <- Sys.time()
@@ -71,22 +74,24 @@ print_for_dataset_MOC_log_reg = function(main_data, df, y, sen_attribute, desire
     learner$train(task, row_ids = train_set)
     predictor = iml::Predictor$new(learner, data = task$data(), y = y)
    
-    fairness_obj = FairnessTest$new(predictor, df = main_data, sensitive_attribute = sen_attribute, n_generations = n_generation)
-    difference = try(fairness_obj$get_prediction_difference(x_interest, desired_level = desired_level, desired_prob = desired_prob))
+    fairness_obj = FairnessTest$new(predictor, df = main_data, sensitive_attribute = sen_attribute, fixed_features = fixed_features, n_generations = n_generation)
+    difference = try(fairness_obj$get_prediction_difference(x_interest, desired_level = desired_level, desired_prob = desired_prob, fixed_features = fixed_features))
     endTime <- Sys.time()
     percentages = fairness_obj$prediction_percentages(x_interest)
+    pred_x_interest = predictor$predict(x_interest)
     
-    pred_x = predictor$predict(x_interest)
-    
-    n = predictor$data$y.names
-    c = names(pred_x)
-    name_col = c[c==x_interest[[n]]]
+    # n = predictor$data$y.names
+    # c = names(pred_x)
+    # name_col = c[c==x_interest[[n]]]
+    idx_pred = which(pred_x_interest>=0.5)
+    name_col = names(pred_x_interest[idx_pred])
     
     final_df[[1]][i] = row_num
-    final_df[[2]][i] = pred_x[, name_col]
-    final_df[[3]][i] = fairness_obj$get_prediction_difference_mean()
-    final_df[[4]][i] = fairness_obj$get_cfactuals_count()
-    final_df[[5]][i] = round((endTime - startTime),2)
+    final_df[[2]][i] = name_col
+    final_df[[3]][i] = pred_x_interest[, name_col]
+    final_df[[4]][i] = fairness_obj$get_prediction_difference_mean()
+    final_df[[5]][i] = fairness_obj$get_cfactuals_count()
+    final_df[[6]][i] = round((endTime - startTime),2)
     
     percentage = fairness_obj$prediction_percentages(x_interest)
     if(i==1){
@@ -96,8 +101,8 @@ print_for_dataset_MOC_log_reg = function(main_data, df, y, sen_attribute, desire
       final_df[name2] <- NA
     }
     
-    final_df[[6]][i] = percentage[[1]]
-    final_df[[7]][i] = percentage[[2]]
+    final_df[[7]][i] = percentage[[1]]
+    final_df[[8]][i] = percentage[[2]]
   }
   # return(cbind(df, final_df))
   return(final_df)
@@ -105,8 +110,8 @@ print_for_dataset_MOC_log_reg = function(main_data, df, y, sen_attribute, desire
 }
 
 print_for_dataset_NICE_rf = function(main_data, df, y, sen_attribute, desired_level, n_generation, desired_prob){
-  final_df <- data.frame(matrix(ncol = 5, nrow = nrow(df)))
-  colnames(final_df) <- c('instance', 'prediction_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
+  final_df <- data.frame(matrix(ncol = 6, nrow = nrow(df)))
+  colnames(final_df) <- c('instance_id', 'pred_x_interest', 'pred_prob_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
   
   for (i in 1:nrow(df)){
     startTime <- Sys.time()
@@ -129,11 +134,6 @@ print_for_dataset_NICE_rf = function(main_data, df, y, sen_attribute, desired_le
     
     endTime <- Sys.time()
     
-    pred_x = predictor$predict(x_interest)
-    
-    n = predictor$data$y.names
-    c = names(pred_x)
-    name_col = c[c==x_interest[[n]]]
     
     data_archive = nice_classif$archive
     len = length(data_archive)
@@ -160,17 +160,23 @@ print_for_dataset_NICE_rf = function(main_data, df, y, sen_attribute, desired_le
     
     df_merged = cbind(data_cfactuals, pred_cfactuals)
     
-    c = names(pred_x_interest)
-    name_col = c[c!=x_interest[[y]]]
+    # c = names(pred_x_interest)
+    # name_col = c[c!=x_interest[[y]]]
+    # n = predictor$data$y.names
+    # c = names(pred_x)
+    # name_col = c[c==x_interest[[n]]]
+    idx_pred = which(pred_x_interest>=0.5)
+    name_col = names(pred_x_interest[idx_pred])
     
     df_merged$diff_from_instance = abs((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
     
     final_df[[1]][i] = row_num
-    final_df[[2]][i] = pred_x[, name_col]
-    final_df[[3]][i] = mean(df_merged$diff_from_instance)
+    final_df[[2]][i] = name_col
+    final_df[[3]][i] = pred_x_interest[, name_col]
+    final_df[[4]][i] = mean(df_merged$diff_from_instance)
 
-    final_df[[4]][i] = nrow(data_cfactuals)
-    final_df[[5]][i] = round((endTime - startTime),2)
+    final_df[[5]][i] = nrow(data_cfactuals)
+    final_df[[6]][i] = round((endTime - startTime),2)
     
     level = names(pred_x_interest)
     new_data = cbind(data_cfactuals, as.data.frame(predictor$predict(data_cfactuals)))
@@ -195,8 +201,8 @@ print_for_dataset_NICE_rf = function(main_data, df, y, sen_attribute, desired_le
       final_df[name1] <- NA
       final_df[name2] <- NA
     }
-    final_df[[6]][i] = d[1]
-    final_df[[7]][i] = d[2]
+    final_df[[7]][i] = d[1]
+    final_df[[8]][i] = d[2]
     
   }
   
@@ -205,8 +211,8 @@ print_for_dataset_NICE_rf = function(main_data, df, y, sen_attribute, desired_le
 }
 
 print_for_dataset_NICE_log_reg = function(main_data, df, y, sen_attribute, desired_level, n_generation, desired_prob){
-  final_df <- data.frame(matrix(ncol = 5, nrow = nrow(df)))
-  colnames(final_df) <- c('instance', 'prediction_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
+  final_df <- data.frame(matrix(ncol = 6, nrow = nrow(df)))
+  colnames(final_df) <- c('instance_id', 'pred_x_interest', 'pred_prob_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
   
   for (i in 1:nrow(df)){
     startTime <- Sys.time()
@@ -239,11 +245,11 @@ print_for_dataset_NICE_log_reg = function(main_data, df, y, sen_attribute, desir
     
     endTime <- Sys.time()
     
-    pred_x = predictor$predict(x_interest)
-    
-    n = predictor$data$y.names
-    c = names(pred_x)
-    name_col = c[c==x_interest[[n]]]
+    # pred_x = predictor$predict(x_interest)
+    # 
+    # n = predictor$data$y.names
+    # c = names(pred_x)
+    # name_col = c[c==x_interest[[n]]]
     
     data_archive = nice_classif$archive
     len = length(data_archive)
@@ -266,16 +272,19 @@ print_for_dataset_NICE_log_reg = function(main_data, df, y, sen_attribute, desir
     
     df_merged = cbind(data_cfactuals, pred_cfactuals)
     
-    c = names(pred_x_interest)
-    name_col = c[c!=x_interest[[y]]]
+    # c = names(pred_x_interest)
+    # name_col = c[c!=x_interest[[y]]]
+    idx_pred = which(pred_x_interest>=0.5)
+    name_col = names(pred_x_interest[idx_pred])
     
     df_merged$diff_from_instance = abs((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
     
     final_df[[1]][i] = row_num
-    final_df[[2]][i] = pred_x[, name_col]
-    final_df[[3]][i] = mean(df_merged$diff_from_instance)
-    final_df[[4]][i] = nrow(data_cfactuals)
-    final_df[[5]][i] = round((endTime - startTime),2)
+    final_df[[2]][i] = name_col
+    final_df[[3]][i] = pred_x_interest[, name_col]
+    final_df[[4]][i] = mean(df_merged$diff_from_instance)
+    final_df[[5]][i] = nrow(data_cfactuals)
+    final_df[[6]][i] = round((endTime - startTime),2)
     
     level = names(pred_x_interest)
     new_data = cbind(data_cfactuals, as.data.frame(predictor$predict(data_cfactuals)))
@@ -303,8 +312,8 @@ print_for_dataset_NICE_log_reg = function(main_data, df, y, sen_attribute, desir
       final_df[name2] <- NA
     }
 
-    final_df[[6]][i] = d[1]
-    final_df[[7]][i] = d[2]
+    final_df[[7]][i] = d[1]
+    final_df[[8]][i] = d[2]
     
   }
   
@@ -313,8 +322,8 @@ print_for_dataset_NICE_log_reg = function(main_data, df, y, sen_attribute, desir
 }
 
 print_for_dataset_whatif_rf = function(main_data, df, y, sen_attribute, desired_level, desired_prob){
-  final_df <- data.frame(matrix(ncol = 5, nrow = nrow(df)))
-  colnames(final_df) <- c('instance', 'prediction_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
+  final_df <- data.frame(matrix(ncol = 6, nrow = nrow(df)))
+  colnames(final_df) <- c('instance_id', 'pred_x_interest', 'pred_prob_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
   
   for (i in 1:nrow(df)){
     startTime <- Sys.time()
@@ -337,11 +346,11 @@ print_for_dataset_whatif_rf = function(main_data, df, y, sen_attribute, desired_
     
     endTime <- Sys.time()
     
-    pred_x = predictor$predict(x_interest)
-    
-    n = predictor$data$y.names
-    c = names(pred_x)
-    name_col = c[c==x_interest[[n]]]
+    # pred_x = predictor$predict(x_interest)
+    # 
+    # n = predictor$data$y.names
+    # c = names(pred_x)
+    # name_col = c[c==x_interest[[n]]]
     
     data_cfactuals = as.data.frame(cfactuals$data)
     
@@ -360,16 +369,19 @@ print_for_dataset_whatif_rf = function(main_data, df, y, sen_attribute, desired_
     
     df_merged = cbind(data_cfactuals, pred_cfactuals)
     
-    c = names(pred_x_interest)
-    name_col = c[c!=x_interest[[y]]]
+    # c = names(pred_x_interest)
+    # name_col = c[c!=x_interest[[y]]]
+    idx_pred = which(pred_x_interest>=0.5)
+    name_col = names(pred_x_interest[idx_pred])
     
     df_merged$diff_from_instance = abs((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
     
     final_df[[1]][i] = row_num
-    final_df[[2]][i] = pred_x[, name_col]
-    final_df[[3]][i] = mean(df_merged$diff_from_instance)
-    final_df[[4]][i] = nrow(data_cfactuals)
-    final_df[[5]][i] = round((endTime - startTime),2)
+    final_df[[2]][i] = name_col
+    final_df[[3]][i] = pred_x_interest[, name_col]
+    final_df[[4]][i] = mean(df_merged$diff_from_instance)
+    final_df[[5]][i] = nrow(data_cfactuals)
+    final_df[[6]][i] = round((endTime - startTime),2)
     
     level = names(pred_x_interest)
     new_data = cbind(data_cfactuals, as.data.frame(predictor$predict(data_cfactuals)))
@@ -394,8 +406,8 @@ print_for_dataset_whatif_rf = function(main_data, df, y, sen_attribute, desired_
       final_df[name1] <- NA
       final_df[name2] <- NA
     }
-    final_df[[6]][i] = d[1]
-    final_df[[7]][i] = d[2]
+    final_df[[7]][i] = d[1]
+    final_df[[8]][i] = d[2]
     
   }
   
@@ -405,8 +417,8 @@ print_for_dataset_whatif_rf = function(main_data, df, y, sen_attribute, desired_
 
 
 print_for_dataset_whatif_rf = function(main_data, df, y, sen_attribute, desired_level, desired_prob){
-  final_df <- data.frame(matrix(ncol = 5, nrow = nrow(df)))
-  colnames(final_df) <- c('instance', 'prediction_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
+  final_df <- data.frame(matrix(ncol = 6, nrow = nrow(df)))
+  colnames(final_df) <- c('instance_id', 'pred_x_interest', 'pred_prob_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
   
   for (i in 1:nrow(df)){
     startTime <- Sys.time()
@@ -429,12 +441,12 @@ print_for_dataset_whatif_rf = function(main_data, df, y, sen_attribute, desired_
     
     endTime <- Sys.time()
     
-    pred_x = predictor$predict(x_interest)
-    
-    n = predictor$data$y.names
-    c = names(pred_x)
-    name_col = c[c==x_interest[[n]]]
-    
+    # pred_x = predictor$predict(x_interest)
+    # 
+    # n = predictor$data$y.names
+    # c = names(pred_x)
+    # name_col = c[c==x_interest[[n]]]
+    # 
     data_cfactuals = as.data.frame(cfactuals$data)
     
     idx_y_x = which(data.frame(colnames(x_interest)) == y)
@@ -452,16 +464,19 @@ print_for_dataset_whatif_rf = function(main_data, df, y, sen_attribute, desired_
     
     df_merged = cbind(data_cfactuals, pred_cfactuals)
     
-    c = names(pred_x_interest)
-    name_col = c[c!=x_interest[[y]]]
+    # c = names(pred_x_interest)
+    # name_col = c[c!=x_interest[[y]]]
+    idx_pred = which(pred_x_interest>=0.5)
+    name_col = names(pred_x_interest[idx_pred])
     
     df_merged$diff_from_instance = abs((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
     
     final_df[[1]][i] = row_num
-    final_df[[2]][i] = pred_x[, name_col]
-    final_df[[3]][i] = mean(df_merged$diff_from_instance)
-    final_df[[4]][i] = nrow(data_cfactuals)
-    final_df[[5]][i] = round((endTime - startTime),2)
+    final_df[[2]][i] = name_col
+    final_df[[3]][i] = pred_x_interest[, name_col]
+    final_df[[4]][i] = mean(df_merged$diff_from_instance)
+    final_df[[5]][i] = nrow(data_cfactuals)
+    final_df[[6]][i] = round((endTime - startTime),2)
     
     level = names(pred_x_interest)
     new_data = cbind(data_cfactuals, as.data.frame(predictor$predict(data_cfactuals)))
@@ -486,8 +501,8 @@ print_for_dataset_whatif_rf = function(main_data, df, y, sen_attribute, desired_
       final_df[name1] <- NA
       final_df[name2] <- NA
     }
-    final_df[[6]][i] = d[1]
-    final_df[[7]][i] = d[2]
+    final_df[[7]][i] = d[1]
+    final_df[[8]][i] = d[2]
     
   }
   
@@ -496,8 +511,8 @@ print_for_dataset_whatif_rf = function(main_data, df, y, sen_attribute, desired_
 }
 
 print_for_dataset_whatif_log_reg = function(main_data, df, y, sen_attribute, desired_level, desired_prob){
-  final_df <- data.frame(matrix(ncol = 5, nrow = nrow(df)))
-  colnames(final_df) <- c('instance', 'prediction_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
+  final_df <- data.frame(matrix(ncol = 6, nrow = nrow(df)))
+  colnames(final_df) <- c('instance_id', 'pred_x_interest', 'pred_prob_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)')
   
   for (i in 1:nrow(df)){
     startTime <- Sys.time()
@@ -530,11 +545,11 @@ print_for_dataset_whatif_log_reg = function(main_data, df, y, sen_attribute, des
     
     endTime <- Sys.time()
     
-    pred_x = predictor$predict(x_interest)
-    
-    n = predictor$data$y.names
-    c = names(pred_x)
-    name_col = c[c==x_interest[[n]]]
+    # pred_x = predictor$predict(x_interest)
+    # 
+    # n = predictor$data$y.names
+    # c = names(pred_x)
+    # name_col = c[c==x_interest[[n]]]
     
     data_cfactuals = as.data.frame(cfactuals$data)
     
@@ -553,16 +568,19 @@ print_for_dataset_whatif_log_reg = function(main_data, df, y, sen_attribute, des
     
     df_merged = cbind(data_cfactuals, pred_cfactuals)
     
-    c = names(pred_x_interest)
-    name_col = c[c!=x_interest[[y]]]
+    # c = names(pred_x_interest)
+    # name_col = c[c!=x_interest[[y]]]
+    idx_pred = which(pred_x_interest>=0.5)
+    name_col = names(pred_x_interest[idx_pred])
     
     df_merged$diff_from_instance = abs((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
     
     final_df[[1]][i] = row_num
-    final_df[[2]][i] = pred_x[, name_col]
-    final_df[[3]][i] = mean(df_merged$diff_from_instance)
-    final_df[[4]][i] = nrow(data_cfactuals)
-    final_df[[5]][i] = round((endTime - startTime),2)
+    final_df[[2]][i] = name_col
+    final_df[[3]][i] = pred_x_interest[, name_col]
+    final_df[[4]][i] = mean(df_merged$diff_from_instance)
+    final_df[[5]][i] = nrow(data_cfactuals)
+    final_df[[6]][i] = round((endTime - startTime),2)
     
     level = names(pred_x_interest)
     new_data = cbind(data_cfactuals, as.data.frame(predictor$predict(data_cfactuals)))
@@ -587,8 +605,8 @@ print_for_dataset_whatif_log_reg = function(main_data, df, y, sen_attribute, des
       final_df[name1] <- NA
       final_df[name2] <- NA
     }
-    final_df[[6]][i] = d[1]
-    final_df[[7]][i] = d[2]
+    final_df[[7]][i] = d[1]
+    final_df[[8]][i] = d[2]
     
   }
   

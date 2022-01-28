@@ -62,7 +62,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    #' 
    #' @return A dataframe with the differences of predictions of the original instance and the counterfactuals
    
-   get_prediction_difference = function(x_interest, desired_level, desired_prob){
+   get_prediction_difference = function(x_interest, desired_level, desired_prob, fixed_features){
      predictor = self$predictor
      df = self$df
      sensitive_attribute = self$sensitive_attribute
@@ -77,7 +77,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      predictor_protected = private$get_predictor_protected(predictor, x_interest)
      
      # generating counterfactuals using `MOCClassif`
-     cfactuals = private$get_cfactuals_moc(x_interest, predictor_protected, desired_prob, desired_level, df, n_generations)
+     cfactuals = private$get_cfactuals_moc(x_interest, predictor_protected, desired_prob, desired_level, df, fixed_features, n_generations)
      
      # transform the counterfactuals into dataframe and appending the protected attribute to the dataframe
      dataframe = as.data.frame(cfactuals$data)
@@ -101,11 +101,12 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      
 
      # this `no` is for column name of probability of no.
-     n = predictor$data$y.names
-     c = names(pred_x_interest)
-     name_col = c[c==x_interest[[n]]]
-     # idx_col = which(names(df_merged)==name_col)
-     # df_merged = df_merged[as.vector(df_merged[[self$idx_col]]) > 0.5, ]
+     # n = predictor$data$y.names
+     # c = names(pred_x_interest)
+     # name_col = c[c==x_interest[[n]]]
+     idx_pred = which(pred_x_interest>=0.5)
+     name_col = names(pred_x_interest[idx_pred])
+     
      df_merged$diff_from_instance = abs((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
      self$pred_diff = df_merged$diff_from_instance
      return(df_merged)
@@ -303,9 +304,10 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
     #' creating a new object of `MOCClassif` for generating counterfactuals
     #' 
     #' @return the moc generated cfactuals
-    get_cfactuals_moc = function(x_interest, predictor_protected, desired_prob, desired_level, df, n_generations){
+    get_cfactuals_moc = function(x_interest, predictor_protected, desired_prob, desired_level, df, fixed_features, n_generations){
       # we fixed the epsilon to zero
-      moc_classif = MOCClassif$new(predictor_protected, n_generations = n_generations, epsilon = 0)
+      print(fixed_features)
+      moc_classif = MOCClassif$new(predictor_protected, fixed_features = fixed_features, n_generations = n_generations, epsilon = 0)
       cfactuals = moc_classif$find_counterfactuals(x_interest, desired_class = desired_level, desired_prob = desired_prob)
     },
     
