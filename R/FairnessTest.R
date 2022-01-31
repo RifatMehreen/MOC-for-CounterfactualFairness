@@ -39,6 +39,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    df = NULL,
    sensitive_attribute = NULL,
    cfs = NULL,
+   org_cfs = NULL,
    n_generations = NULL,
    pred_diff = NULL,
    initialize = function(predictor = NULL, df = NULL, sensitive_attribute = NULL, epsilon = NULL, fixed_features = NULL, max_changed = NULL, mu = 20L, 
@@ -54,6 +55,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      self$sensitive_attribute <- sensitive_attribute
      self$n_generations <- n_generations
      self$cfs <- NULL
+     self$org_cfs <- NULL
      self$pred_diff <-NULL
      },
 
@@ -62,7 +64,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
    #' 
    #' @return A dataframe with the differences of predictions of the original instance and the counterfactuals
    
-   get_prediction_difference = function(x_interest, desired_level, desired_prob, fixed_features){
+   get_prediction_difference = function(x_interest, desired_level, desired_prob, fixed_features = NULL){
      predictor = self$predictor
      df = self$df
      sensitive_attribute = self$sensitive_attribute
@@ -75,12 +77,20 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      
      # predictor for the protected attribute as response variable
      predictor_protected = private$get_predictor_protected(predictor, x_interest)
+     print("ei porjonto hoise")
      
      # generating counterfactuals using `MOCClassif`
-     cfactuals = private$get_cfactuals_moc(x_interest, predictor_protected, desired_prob, desired_level, df, fixed_features, n_generations)
+     cf = private$get_cfactuals_moc(x_interest, predictor_protected, desired_prob, desired_level, df, fixed_features, n_generations)
+     #return(cf)
+     cfactuals = cf$data
+     cf_predict = cf$predict()
+     self$org_cfs = nrow(cfactuals)
+     
+     # taking only those with prediction prob > 0.5
+     cfactuals = cfactuals[which(cf_predict[desired_level]>0.5), ]
      
      # transform the counterfactuals into dataframe and appending the protected attribute to the dataframe
-     dataframe = as.data.frame(cfactuals$data)
+     dataframe = as.data.frame(cfactuals)
      dataframe[sensitive_attribute] = desired_level
      
      # without the response variable
@@ -107,7 +117,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      idx_pred = which(pred_x_interest>=0.5)
      name_col = names(pred_x_interest[idx_pred])
      
-     df_merged$diff_from_instance = abs((df_merged[, ..name_col]) - (pred_x_interest[, name_col]))
+     df_merged$diff_from_instance = (df_merged[, ..name_col]) - (pred_x_interest[, name_col])
      self$pred_diff = df_merged$diff_from_instance
      return(df_merged)
    },
@@ -162,8 +172,6 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      tSNE_df <- tSNE_df %>%
        dplyr::inner_join(recidivism_meta, by="ID")
 
-     # print(tSNE_df %>% head())
-
      idx = which(tSNE_df$type == "x_interest")
 
      library(ggplot2)
@@ -172,16 +180,16 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      if(!is.null(factor_variable)){
        tSNE_df %>%
        ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes_string(shape=factor_variable, color=sen_attribute, size="type")) +
-         scale_size_manual(values=c(5,1,3)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
-                                                          color="green", inherit.aes = FALSE) + theme_light(base_size=16)+ theme(legend.position="bottom")   
+         scale_size_manual(values=c(8,1,10)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 4),
+                                                          color="green", inherit.aes = FALSE) + theme_light(base_size=18)+ theme(legend.position="bottom")   
        
      }
      
      else{
        tSNE_df %>%
        ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes_string(shape=sen_attribute, color=sen_attribute, size="type")) +
-         scale_size_manual(values=c(6,1,4)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 2),
-                                                          color="green", inherit.aes = FALSE) + theme_light(base_size=16) + theme(legend.position="bottom")
+         scale_size_manual(values=c(8,1,10)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 4),
+                                                          color="green", inherit.aes = FALSE) + theme_light(base_size=18) + theme(legend.position="bottom")
 
      }
    },
@@ -304,7 +312,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
     #' creating a new object of `MOCClassif` for generating counterfactuals
     #' 
     #' @return the moc generated cfactuals
-    get_cfactuals_moc = function(x_interest, predictor_protected, desired_prob, desired_level, df, fixed_features, n_generations){
+    get_cfactuals_moc = function(x_interest, predictor_protected, desired_prob, desired_level, df, fixed_features = NULL, n_generations){
       # we fixed the epsilon to zero
       print(fixed_features)
       moc_classif = MOCClassif$new(predictor_protected, fixed_features = fixed_features, n_generations = n_generations, epsilon = 0)

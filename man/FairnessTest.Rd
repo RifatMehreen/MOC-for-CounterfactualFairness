@@ -110,7 +110,12 @@ The desired class we want to have in our counterfactuals}
 \subsection{Method \code{get_prediction_difference()}}{
 Creates a dataframe with the differences of predictions
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_prediction_difference(x_interest, desired_level, desired_prob)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_prediction_difference(
+  x_interest,
+  desired_level,
+  desired_prob,
+  fixed_features
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
