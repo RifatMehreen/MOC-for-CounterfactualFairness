@@ -114,7 +114,7 @@ Creates a dataframe with the differences of predictions
   x_interest,
   desired_level,
   desired_prob,
-  fixed_features
+  fixed_features = NULL
 )}\if{html}{\out{</div>}}
 }
 

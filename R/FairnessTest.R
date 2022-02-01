@@ -77,7 +77,6 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      
      # predictor for the protected attribute as response variable
      predictor_protected = private$get_predictor_protected(predictor, x_interest)
-     print("ei porjonto hoise")
      
      # generating counterfactuals using `MOCClassif`
      cf = private$get_cfactuals_moc(x_interest, predictor_protected, desired_prob, desired_level, df, fixed_features, n_generations)
@@ -192,6 +191,23 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
                                                           color="green", inherit.aes = FALSE) + theme_light(base_size=18) + theme(legend.position="bottom")
 
      }
+   },
+   
+   get_wapd = function(){
+     diff = self$pred_diff
+     n_cf = length(diff)
+     n_pos = length(diff[diff > 0])
+     n_neg = length(diff[diff < 0])
+     sum_pos = sum(diff[diff > 0])
+     sum_neg = sum(diff[diff < 0])
+     # print(n_pos)
+     # print(n_neg)
+     # print(sum_pos)
+     # print(sum_neg)
+     
+     ans = ((n_pos/n_cf)*sum_pos + (n_neg/n_cf)*sum_neg)/n_cf
+     return(round(ans,2))
+     
    },
    
    #' @description 
