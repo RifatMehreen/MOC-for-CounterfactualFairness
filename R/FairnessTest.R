@@ -180,7 +180,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
        tSNE_df %>%
        ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes_string(shape=factor_variable, color=sen_attribute, size="type")) +
          scale_size_manual(values=c(8,1,10)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 4),
-                                                          color="green", inherit.aes = FALSE) + theme_light(base_size=18)+ theme(legend.position="bottom")   
+                                                          color="black", inherit.aes = FALSE) + theme_light(base_size=10)+ theme(legend.position="bottom")   
        
      }
      
@@ -188,7 +188,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
        tSNE_df %>%
        ggplot2::ggplot(aes(x = tSNE1, y = tSNE2,))+ geom_point(aes_string(shape=sen_attribute, color=sen_attribute, size="type")) +
          scale_size_manual(values=c(8,1,10)) + geom_circle(aes(x0 = tSNE_df[idx,]$tSNE1, y0 = tSNE_df[idx,]$tSNE2, r = 4),
-                                                          color="green", inherit.aes = FALSE) + theme_light(base_size=18) + theme(legend.position="bottom")
+                                                          color="black", inherit.aes = FALSE) + theme_light(base_size=10) + theme(legend.position="bottom")
 
      }
    },

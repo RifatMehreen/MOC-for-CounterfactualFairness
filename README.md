@@ -69,7 +69,7 @@ For `x_interest` the model predicts:
 We use the `$get_prediction_difference()` method to find difference of predictions of the  `x_interest` and the counterfactuals.
 
 ``` r
-difference = fairness_obj$get_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
+difference = fairness_obj$get_prediction_difference()(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
 ```
 
 We can also use `$print_prediction()` method to look into the predictions for both `x_interest` and the generated counterfactuals

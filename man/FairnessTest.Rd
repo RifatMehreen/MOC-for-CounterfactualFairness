@@ -37,6 +37,7 @@ if (require("randomForest")) {
 \item \href{#method-new}{\code{FairnessTest$new()}}
 \item \href{#method-get_prediction_difference}{\code{FairnessTest$get_prediction_difference()}}
 \item \href{#method-plot_tSNE}{\code{FairnessTest$plot_tSNE()}}
+\item \href{#method-get_wapd}{\code{FairnessTest$get_wapd()}}
 \item \href{#method-print_prediction}{\code{FairnessTest$print_prediction()}}
 \item \href{#method-print_counterfactuals}{\code{FairnessTest$print_counterfactuals()}}
 \item \href{#method-prediction_percentages}{\code{FairnessTest$prediction_percentages()}}
@@ -128,6 +129,15 @@ A dataframe with the differences of predictions of the original instance and the
 \subsection{Method \code{plot_tSNE()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{FairnessTest$plot_tSNE(x_interest, factor_variable = NULL, sen_attribute)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_wapd"></a>}}
+\if{latex}{\out{\hypertarget{method-get_wapd}{}}}
+\subsection{Method \code{get_wapd()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_wapd()}\if{html}{\out{</div>}}
 }
 
 }
