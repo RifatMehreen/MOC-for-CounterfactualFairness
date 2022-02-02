@@ -86,7 +86,7 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      self$org_cfs = nrow(cfactuals)
      
      # taking only those with prediction prob > 0.5
-     cfactuals = cfactuals[which(cf_predict[desired_level]>0.5), ]
+     cfactuals = cfactuals[which(cf_predict[desired_level]>=0.5), ]
      
      # transform the counterfactuals into dataframe and appending the protected attribute to the dataframe
      dataframe = as.data.frame(cfactuals)
@@ -110,13 +110,10 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      
 
      # this `no` is for column name of probability of no.
-     # n = predictor$data$y.names
-     # c = names(pred_x_interest)
-     # name_col = c[c==x_interest[[n]]]
      idx_pred = which(pred_x_interest>=0.5)
      name_col = names(pred_x_interest[idx_pred])
      
-     df_merged$diff_from_instance = (df_merged[, ..name_col]) - (pred_x_interest[, name_col])
+     df_merged$diff_from_instance =  (pred_x_interest[, name_col]) - (df_merged[, ..name_col])
      self$pred_diff = df_merged$diff_from_instance
      return(df_merged)
    },
@@ -246,8 +243,8 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
      idx_y = which(colnames(new_data) == y_prot_name)
      new_data <- subset(new_data, select = -c(idx_y))
      
-     new_data[level[1]] <- ifelse(new_data[level[1]] > 0.5, 1, 0)
-     new_data[level[2]] <- ifelse(new_data[level[2]] > 0.5, 1, 0)
+     new_data[level[1]] <- ifelse(new_data[level[1]] >= 0.5, 1, 0)
+     new_data[level[2]] <- ifelse(new_data[level[2]] >= 0.5, 1, 0)
       
      percent_cf <- vector(mode = "list", length = 0)
      percent_cf$l1 = round(100 * (length(which(new_data[level[1]] == 1))/nrow(new_data)), 2)
@@ -330,7 +327,6 @@ FairnessTest = R6::R6Class("FairnessTest", inherit = MOCClassif,
     #' @return the moc generated cfactuals
     get_cfactuals_moc = function(x_interest, predictor_protected, desired_prob, desired_level, df, fixed_features = NULL, n_generations){
       # we fixed the epsilon to zero
-      print(fixed_features)
       moc_classif = MOCClassif$new(predictor_protected, fixed_features = fixed_features, n_generations = n_generations, epsilon = 0)
       cfactuals = moc_classif$find_counterfactuals(x_interest, desired_class = desired_level, desired_prob = desired_prob)
     },
