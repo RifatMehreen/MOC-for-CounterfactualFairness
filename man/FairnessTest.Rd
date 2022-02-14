@@ -28,16 +28,38 @@ if (require("randomForest")) {
 
 
 }
-\section{Super classes}{
-\code{\link[moccf:CounterfactualMethod]{moccf::CounterfactualMethod}} -> \code{\link[moccf:CounterfactualMethodClassif]{moccf::CounterfactualMethodClassif}} -> \code{\link[moccf:MOCClassif]{moccf::MOCClassif}} -> \code{FairnessTest}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{predictor}}{(\link[iml]{Predictor})\cr
+The object (created with \code{iml::Predictor$new()}) holding the machine learning model and the data.}
+
+\item{\code{df}}{(dataframe)\cr
+The dataset or dataframe for the prediction}
+
+\item{\code{sensitive_attribute}}{(\code{string})\cr
+The name of sensitive_attribute.}
+
+\item{\code{n_generations}}{(\code{integerish(1)})\cr
+The number of generations. Default is \code{175L}.}
+
+\item{\code{cfs}}{(dataframe)\cr
+A datframe consisting counterfactuals (plausible)}
+
+\item{\code{org_cfs}}{(dataframe)\cr
+A dataframe containing all counterfactuals}
+
+\item{\code{pred_diff}}{(dataframe)\cr
+A dataframe consisting the prediction differences}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{FairnessTest$new()}}
-\item \href{#method-get_prediction_difference}{\code{FairnessTest$get_prediction_difference()}}
+\item \href{#method-generate_counterfactuals}{\code{FairnessTest$generate_counterfactuals()}}
 \item \href{#method-plot_tSNE}{\code{FairnessTest$plot_tSNE()}}
-\item \href{#method-get_wapd}{\code{FairnessTest$get_wapd()}}
 \item \href{#method-print_prediction}{\code{FairnessTest$print_prediction()}}
 \item \href{#method-print_counterfactuals}{\code{FairnessTest$print_counterfactuals()}}
 \item \href{#method-prediction_percentages}{\code{FairnessTest$prediction_percentages()}}
@@ -45,17 +67,6 @@ if (require("randomForest")) {
 \item \href{#method-get_cfactuals_count}{\code{FairnessTest$get_cfactuals_count()}}
 \item \href{#method-clone}{\code{FairnessTest$clone()}}
 }
-}
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="moccf" data-topic="CounterfactualMethod" data-id="print">}\href{../../moccf/html/CounterfactualMethod.html#method-print}{\code{moccf::CounterfactualMethod$print()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="moccf" data-topic="CounterfactualMethodClassif" data-id="find_counterfactuals">}\href{../../moccf/html/CounterfactualMethodClassif.html#method-find_counterfactuals}{\code{moccf::CounterfactualMethodClassif$find_counterfactuals()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="moccf" data-topic="MOCClassif" data-id="get_dominated_hv">}\href{../../moccf/html/MOCClassif.html#method-get_dominated_hv}{\code{moccf::MOCClassif$get_dominated_hv()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="moccf" data-topic="MOCClassif" data-id="plot_search">}\href{../../moccf/html/MOCClassif.html#method-plot_search}{\code{moccf::MOCClassif$plot_search()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="moccf" data-topic="MOCClassif" data-id="plot_statistics">}\href{../../moccf/html/MOCClassif.html#method-plot_statistics}{\code{moccf::MOCClassif$plot_statistics()}}\out{</span>}
-}
-\out{</details>}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
@@ -67,51 +78,35 @@ Create a new FairnessTest object.
   predictor = NULL,
   df = NULL,
   sensitive_attribute = NULL,
-  epsilon = NULL,
-  fixed_features = NULL,
-  max_changed = NULL,
-  mu = 20L,
-  n_generations = 175L,
-  p_rec = 0.57,
-  p_rec_gen = 0.85,
-  p_rec_use_orig = 0.88,
-  p_mut = 0.79,
-  p_mut_gen = 0.56,
-  p_mut_use_orig = 0.32,
-  k = 1L,
-  weights = NULL,
-  lower = NULL,
-  upper = NULL,
-  init_strategy = "random",
-  use_conditional_mutator = FALSE
+  n_generations = 175L
 )}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{predictor}}{(\verb{iml predictor})\cr
-The predictor}
+\item{\code{predictor}}{(\link[iml]{Predictor})\cr
+The object (created with \code{iml::Predictor$new()}) holding the machine learning model and the data.}
 
 \item{\code{df}}{(dataframe)\cr
 The dataset or dataframe for the prediction}
 
-\item{\code{sensitive_attribute}}{(string)\cr
+\item{\code{sensitive_attribute}}{(\code{string})\cr
 The name of sensitive_attribute.}
 
-\item{\code{desired_level}}{(string)\cr
-The desired class we want to have in our counterfactuals}
+\item{\code{n_generations}}{(\code{integerish(1)})\cr
+The number of generations. Default is \code{175L}.}
 }
 \if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_prediction_difference"></a>}}
-\if{latex}{\out{\hypertarget{method-get_prediction_difference}{}}}
-\subsection{Method \code{get_prediction_difference()}}{
+\if{html}{\out{<a id="method-generate_counterfactuals"></a>}}
+\if{latex}{\out{\hypertarget{method-generate_counterfactuals}{}}}
+\subsection{Method \code{generate_counterfactuals()}}{
 Creates a dataframe with the differences of predictions
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_prediction_difference(
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$generate_counterfactuals(
   x_interest,
   desired_level,
   desired_prob,
@@ -119,6 +114,25 @@ Creates a dataframe with the differences of predictions
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x_interest}}{(\code{data.table(1)} | \code{data.frame(1)}) \cr
+A single row with the observation of interest.}
+
+\item{\code{desired_level}}{(\code{character(1)} | \code{NULL}) \cr
+The desired class. If \code{NULL} (default) then \code{predictor$class} is taken.}
+
+\item{\code{desired_prob}}{(\code{numeric(1)} | \code{numeric(2)}) \cr
+The desired predicted probability of the \code{desired_class}. It can be a numeric scalar or a vector with two
+numeric values that specify a probability range.
+For hard classification tasks this can be set to \code{0} or \code{1}, respectively.}
+
+\item{\code{fixed_features}}{(\code{character()} | \code{NULL})\cr
+Names of features that are not allowed to change. \code{NULL} (default) allows to change all features.}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
 A dataframe with the differences of predictions of the original instance and the counterfactuals
 }
@@ -127,19 +141,42 @@ A dataframe with the differences of predictions of the original instance and the
 \if{html}{\out{<a id="method-plot_tSNE"></a>}}
 \if{latex}{\out{\hypertarget{method-plot_tSNE}{}}}
 \subsection{Method \code{plot_tSNE()}}{
+Creates a dataframe with the differences of predictions
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$plot_tSNE(x_interest, factor_variable = NULL, sen_attribute)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$plot_tSNE(x_interest, factor_variable = NULL)}\if{html}{\out{</div>}}
 }
 
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_wapd"></a>}}
-\if{latex}{\out{\hypertarget{method-get_wapd}{}}}
-\subsection{Method \code{get_wapd()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_wapd()}\if{html}{\out{</div>}}
-}
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x_interest}}{(\code{data.table(1)} | \code{data.frame(1)}) \cr
+A single row with the observation of interest.}
 
+\item{\code{factor_variable}}{(\code{string})\cr
+Names of features that are not allowed to change}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A dataframe with the differences of predictions of the original instance and the counterfactuals
+#' @description
+#' Creates a dataframe with the differences of predictions
+#' @template x_interest
+#' @param desired_level (\code{character(1)} | \code{NULL}) \cr
+#'   The desired class. If \code{NULL} (default) then \code{predictor$class} is taken.
+get_wapd = function(){
+diff = self$pred_diff
+n_cf = length(diff)
+n_pos = length(diff\link{diff > 0})
+n_neg = length(diff\link{diff < 0})
+sum_pos = sum(diff\link{diff > 0})
+sum_neg = sum(diff\link{diff < 0})
+
+ans = ((n_pos/n_cf)*sum_pos + (n_neg/n_cf)*sum_neg)/n_cf
+return(round(ans,2))
+
+},
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print_prediction"></a>}}
@@ -176,6 +213,14 @@ prints the percentage for the predictions
 \if{html}{\out{<div class="r">}}\preformatted{FairnessTest$prediction_percentages(x_interest)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x_interest}}{(\code{data.table(1)} | \code{data.frame(1)}) \cr
+A single row with the observation of interest.}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
 the percentage for the predictions of generated counterfactuals
 }
@@ -197,6 +242,7 @@ mean of the prediction of the counterfactuals as the opposite of the x_interest
 \if{html}{\out{<a id="method-get_cfactuals_count"></a>}}
 \if{latex}{\out{\hypertarget{method-get_cfactuals_count}{}}}
 \subsection{Method \code{get_cfactuals_count()}}{
+Gives the total count of counterfactuals
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_cfactuals_count()}\if{html}{\out{</div>}}
 }
