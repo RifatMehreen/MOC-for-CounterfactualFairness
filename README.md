@@ -60,8 +60,8 @@ fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "r
 For `x_interest` the model predicts:
 
 ``` r
-> x_interest = compas[17L, ]
-> predictor$predict(x_interest)
+x_interest = compas[17L, ]
+predictor$predict(x_interest)
 #>    No  Yes
 #> 1 0.24 0.76
 ```
@@ -69,14 +69,14 @@ For `x_interest` the model predicts:
 First we generate counterfactuals by running `generate_countefactuals()`:
 
 ``` r
-> cfactuals = fairness_obj$generate_counterfactuals(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
-> cfactuals
-#>    age juv_fel_count decile_score juv_misd_count juv_other_count v_decile_score priors_count  sex      race c_jail_in
+cfactuals = fairness_obj$generate_counterfactuals(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
+cfactuals
+#>    age juv_fel_count decile_score juv_misd_count juv_other_count v_decile_score priors_count  sex      race c_jail_in 
 #> 1:  21     0.0000000     9.000000              0        4.189173              9     1.000000 Male Caucasian 0.7913651
 #> 2:  21     0.0000000     7.409944              0        3.685493              9     2.949364 Male Caucasian 0.7913651
 #> 3:  21     0.4692705     9.000000              0        3.856240              9     1.000000 Male Caucasian 0.7913651
 #> 4:  21     0.0000000     5.254366              0        3.391174              9     1.000000 Male Caucasian 0.7913651
-      c_jail_out c_offense_date screening_date in_custody out_custody
+#>    c_jail_out c_offense_date screening_date in_custody out_custody
 #> 1:  0.7916205      0.7374175      0.7914502  0.7940049   0.7940901
 #> 2:  0.7916205      0.7913651      0.7871658  0.7940049   0.7940901
 #> 3:  0.7942515      0.7707731      0.7897707  0.7927961   0.7959850
@@ -86,7 +86,18 @@ First we generate counterfactuals by running `generate_countefactuals()`:
 We use the `$get_prediction_difference()` method to find difference of predictions of the  `x_interest` and the counterfactuals.
 
 ``` r
-difference = fairness_obj$get_prediction_difference()(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
+mpd = fairness_obj$get_mpd(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
+mpd
+#>    age juv_fel_count decile_score juv_misd_count juv_other_count v_decile_score priors_count  sex      race c_jail_in
+#> 1:  21     0.0000000     9.000000              0        4.189173              9     1.000000 Male Caucasian 0.7913651
+#> 2:  21     0.0000000     7.409944              0        3.685493              9     2.949364 Male Caucasian 0.7913651
+#> 3:  21     0.4692705     9.000000              0        3.856240              9     1.000000 Male Caucasian 0.7913651
+#> 4:  21     0.0000000     5.254366              0        3.391174              9     1.000000 Male Caucasian 0.7913651
+#>    c_jail_out c_offense_date screening_date in_custody out_custody    No   Yes   mpd
+#> 1:  0.7916205      0.7374175      0.7914502  0.7940049   0.7940901 0.376 0.624 0.136
+#> 2:  0.7916205      0.7913651      0.7871658  0.7940049   0.7940901 0.328 0.672 0.088
+#> 3:  0.7942515      0.7707731      0.7897707  0.7927961   0.7959850 0.374 0.626 0.134
+#> 4:  0.7916205      0.7913651      0.7914502  0.7940049   0.7940901 0.466 0.534 0.226
 ```
 
 We can also use `$print_prediction()` method to look into the predictions for both `x_interest` and the generated counterfactuals
