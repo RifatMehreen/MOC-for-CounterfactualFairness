@@ -59,6 +59,7 @@ A dataframe consisting the prediction differences}
 \itemize{
 \item \href{#method-new}{\code{FairnessTest$new()}}
 \item \href{#method-generate_counterfactuals}{\code{FairnessTest$generate_counterfactuals()}}
+\item \href{#method-get_prediction_difference}{\code{FairnessTest$get_prediction_difference()}}
 \item \href{#method-plot_tSNE}{\code{FairnessTest$plot_tSNE()}}
 \item \href{#method-print_prediction}{\code{FairnessTest$print_prediction()}}
 \item \href{#method-print_counterfactuals}{\code{FairnessTest$print_counterfactuals()}}
@@ -121,15 +122,37 @@ Creates a dataframe with the differences of predictions
 A single row with the observation of interest.}
 
 \item{\code{desired_level}}{(\code{character(1)} | \code{NULL}) \cr
-The desired class. If \code{NULL} (default) then \code{predictor$class} is taken.}
+The desired level of the protected attribute.
+If \code{NULL} (default) then \code{predictor_protected$class} is taken.}
 
 \item{\code{desired_prob}}{(\code{numeric(1)} | \code{numeric(2)}) \cr
-The desired predicted probability of the \code{desired_class}. It can be a numeric scalar or a vector with two
+The desired predicted probability of the \code{desired_level}. It can be a numeric scalar or a vector with two
 numeric values that specify a probability range.
 For hard classification tasks this can be set to \code{0} or \code{1}, respectively.}
 
 \item{\code{fixed_features}}{(\code{character()} | \code{NULL})\cr
 Names of features that are not allowed to change. \code{NULL} (default) allows to change all features.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A dataframe with the differences of predictions of the original instance and the counterfactuals
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_prediction_difference"></a>}}
+\if{latex}{\out{\hypertarget{method-get_prediction_difference}{}}}
+\subsection{Method \code{get_prediction_difference()}}{
+Creates a dataframe with the differences of predictions
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_prediction_difference(x_interest)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x_interest}}{(\code{data.table(1)} | \code{data.frame(1)}) \cr
+A single row with the observation of interest.}
 }
 \if{html}{\out{</div>}}
 }
