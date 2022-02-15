@@ -109,5 +109,5 @@ mpd
 There are also some other methods for visualization and evaluation. In order to look into the distribution of the counterfactuals, we can use the `$plot_tSNE()` method.
 ``` r
 fairness_obj$plot_tSNE(x_interest, factor_variable = "sex")
-![Optional Text](../main/Images/tSNE_plot_compas_17.png)
 ```
+![Optional Text](../main/Images/tSNE_plot_compas_17.png)
