@@ -50,8 +50,7 @@ data for analyzing the model.
 predictor = iml::Predictor$new(rf, type = "prob")
 ```
 
-Now we set up an object of the counterfactual fairness test method we want
-to use. Here we use `FairnessTest`
+Now we set up an object of the counterfactual `FairnessTest` that uses `MOC` from the `counterfactuals` package. As the sensitive attribute we use `race`. 
 
 ``` r
 fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "race", n_generations = 175)
@@ -66,7 +65,7 @@ predictor$predict(x_interest)
 #> 1 0.24 0.76
 ```
 
-First we generate counterfactuals by running `generate_countefactuals()`:
+First we generate counterfactuals by running `generate_countefactuals()` for our `x_interest`. `cfactuals` is the genereted plausible counterfactuals:
 
 ``` r
 cfactuals = fairness_obj$generate_counterfactuals(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
@@ -83,11 +82,11 @@ cfactuals
 #> 4:  0.7916205      0.7913651      0.7914502  0.7940049   0.7940901
 ```
 
-We use the `$get_prediction_difference()` method to find difference of predictions of the  `x_interest` and the counterfactuals.
+We use the `$get_prediction_difference()` method to find differences of predictions of the  `x_interest` and the `cfactuals`.
 
 ``` r
-mpd = fairness_obj$get_mpd(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
-mpd
+pred_diff = fairness_obj$get_prediction_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
+pred_diff
 #>    age juv_fel_count decile_score juv_misd_count juv_other_count v_decile_score priors_count  sex      race c_jail_in
 #> 1:  21     0.0000000     9.000000              0        4.189173              9     1.000000 Male Caucasian 0.7913651
 #> 2:  21     0.0000000     7.409944              0        3.685493              9     2.949364 Male Caucasian 0.7913651
@@ -100,15 +99,15 @@ mpd
 #> 4:  0.7916205      0.7913651      0.7914502  0.7940049   0.7940901 0.466 0.534 0.226
 ```
 
-We can also use `$print_prediction()` method to look into the predictions for both `x_interest` and the generated counterfactuals
+We can also use `$get_mpd()` method to look into the mean of the prediction differences
 ``` r
-fairness_obj$print_prediction()
+mpd = fairness_obj$get_mpd()
+mpd
+#> 0.15
 ```
 
-Use `$print_counterfactuals()` to get the generated counterfactuals
+There are also some other methods for visualization and evaluation. In order to look into the distribution of the counterfactuals, we can use the `$plot_tSNE()` method.
 ``` r
-fairness_obj$print_counterfactuals()
+fairness_obj$plot_tSNE(x_interest, factor_variable = "sex")
+![alt text](https://github.com/RifatMehreen/MOC-for-CounterfactualFairness/blob/main/Images/tSNE_plot_compas_17.png?raw=true)
 ```
-
-There are also some other methods for visualizationa and evaluation
-
