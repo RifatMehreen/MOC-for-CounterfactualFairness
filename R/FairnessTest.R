@@ -28,7 +28,7 @@ FairnessTest = R6::R6Class("FairnessTest",
   public = list(
    #' @description Create a new FairnessTest object.
    #' @template predictor
-   #' @param df (dataframe)\cr
+   #' @param df (`data_frame`)\cr
    #'   The dataset or dataframe
    #' @param sensitive_attribute (`string`)\cr
    #'   The name of the protected attribute.
@@ -36,17 +36,17 @@ FairnessTest = R6::R6Class("FairnessTest",
    #'   The number of generations. Default is `175L`.
    #' @field predictor (\link[iml]{Predictor})\cr
    #'   The object (created with `iml::Predictor$new()`) holding the machine learning model and the data.
-   #' @field df (dataframe)\cr
+   #' @field df (`data_frame`)\cr
    #'   The dataset or dataframe for the prediction
    #' @field sensitive_attribute (`string`)\cr
    #'   The name of the sensitive attribute.
    #' @field n_generations (`integerish(1)`)\cr  
    #'   The number of generations. Default is `175L`.
-   #' @field cfs (dataframe)\cr
+   #' @field cfs (`data_frame`)\cr
    #'   A datframe containing counterfactuals (plausible)
-   #' @field org_cfs (dataframe)\cr
+   #' @field org_cfs (`data_frame`)\cr
    #'   A dataframe containing all counterfactuals
-   #' @field pred_diff (dataframe)\cr
+   #' @field pred_diff (`data_frame`)\cr
    #'   A dataframe containing the prediction differences 
    predictor = NULL,
    df = NULL,
@@ -292,6 +292,7 @@ FairnessTest = R6::R6Class("FairnessTest",
       
       est = as.formula(paste(substitute(sensitive_attribute), " ~ ."))
       set.seed(142)
+      print(df)
       rf1 = randomForest(est, data = df[-(row_num), ])
       predictor_protected = iml::Predictor$new(rf1, type = "prob", data = df[-(row_num), ])
       return(predictor_protected)

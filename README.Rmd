@@ -1,0 +1,110 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  fig.height = 10,
+  fig.width = 15
+)
+options(width = 200)
+```
+
+# moccf: Multi-objective counterfactuals for counterfactual fairness
+
+In this example, we train a `randomForest` on the `COMPAS` dataset.
+
+We now examine whether the prediction of a given `yes` for `two_yr_recid` observation will change
+to a `no` for the generated counterfactuals (with `race` changed to `Caucasian` from `African-American`).
+
+``` {r, results='hide', message=FALSE}
+library(dplyr)
+library(plyr)
+library(tidyverse)
+library(Rtsne)
+library(mlr3pipelines)
+library(mlr3learners)
+options(rgl.useNULL = TRUE)
+library(rgl)
+library(Rmpfr)
+library(checkmate)
+library(R6)
+library(paradox)
+library(data.table)
+library(miesmuschel)
+library(fairml)
+library(counterfactuals)
+library(randomForest)
+library(iml)
+library(ggforce)
+library(moccf)
+```
+
+First, we load the data and pre-process it
+
+```{r}
+compas <- fairml::compas
+compas <- compas %>% drop_na()
+compas <- compas %>% distinct()
+``` 
+ 
+Then we train the randomForest model to predict the `two-yr-recid` (Two years recidivism or chances of re-offending). <br>
+Note that we leave out one observation from the training data which is
+our `x_interest`.
+
+``` {r}
+set.seed(142)
+rf = randomForest(two_year_recid ~ ., data = compas[-17L, ])
+```
+
+We now create an `iml::Predictor` object, that holds the model and the
+data for analyzing the model.
+
+``` {r}
+predictor = iml::Predictor$new(rf, type = "prob")
+```
+
+Now we set up an object of the `FairnessTest` that uses `MOC` from the `counterfactuals` package. As the sensitive attribute we use `race`. 
+
+``` {r}
+fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "race", n_generations = 175)
+```
+
+For `x_interest` the model predicts:
+
+``` {r}
+x_interest = compas[17L, ]
+predictor$predict(x_interest)
+```
+
+First we generate counterfactuals by running `generate_countefactuals()` for our `x_interest`. `cfactuals` is the genereted plausible counterfactuals. While we are examining unfairness for a specific protected attribute, we keep the other protected attributes fixed.
+
+``` {r, results='hide', message=FALSE}
+cfactuals = fairness_obj$generate_counterfactuals(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1), fixed_features = "sex")
+```
+```{r}
+cfactuals
+```
+
+We use the `$get_prediction_difference()` method to find differences of predictions of the  `x_interest` and the `cfactuals`.
+
+``` {r}
+pred_diff = fairness_obj$get_prediction_difference(x_interest)
+pred_diff
+```
+
+We can also use `$get_mpd()` method to look into the mean of the prediction differences
+``` {r}
+mpd = fairness_obj$get_mpd()
+mpd
+```
+
+There are also some other methods for visualization and evaluation. In order to look into the distribution of the counterfactuals, we can use the `$plot_tSNE()` method.
+``` {r, message=FALSE}
+fairness_obj$plot_tSNE(x_interest, factor_variable = "sex")
+```
