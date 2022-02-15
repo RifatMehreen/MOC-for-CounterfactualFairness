@@ -50,7 +50,7 @@ data for analyzing the model.
 predictor = iml::Predictor$new(rf, type = "prob")
 ```
 
-Now we set up an object of the counterfactual `FairnessTest` that uses `MOC` from the `counterfactuals` package. As the sensitive attribute we use `race`. 
+Now we set up an object of the `FairnessTest` that uses `MOC` from the `counterfactuals` package. As the sensitive attribute we use `race`. 
 
 ``` r
 fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "race", n_generations = 175)
@@ -85,7 +85,7 @@ cfactuals
 We use the `$get_prediction_difference()` method to find differences of predictions of the  `x_interest` and the `cfactuals`.
 
 ``` r
-pred_diff = fairness_obj$get_prediction_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
+pred_diff = fairness_obj$get_prediction_difference(x_interest)
 pred_diff
 #>    age juv_fel_count decile_score juv_misd_count juv_other_count v_decile_score priors_count  sex      race c_jail_in
 #> 1:  21     0.0000000     9.000000              0        4.189173              9     1.000000 Male Caucasian 0.7913651

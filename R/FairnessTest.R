@@ -12,11 +12,14 @@
 #'   rf = randomForest(two_year_recid ~ ., data = compas[-17L, ])
 #'   # Create a predictor object
 #'   predictor = iml::Predictor$new(rf, type = "prob")
-#'   # Find differences of the prediction of counterfactuals and original instance 
+#'   # Create a FairnessTest object
 #'   fairness_obj = FairnessTest$new(predictor, df = compas, sensitive_attribute = "race", n_generations = 175)
+#'   # Generate plausible counterfactuals
+#'   cfatuals = fairness_obj$generate_counterfactuals(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
+#'   # Find differences of the prediction of counterfactuals and original instance 
+#'   pred_diff = fairness_obj$get_prediction_difference(x_interest)
 #'   # Print the results
-#'   difference = fairness_obj$get_prediction_difference(x_interest, desired_level = "Caucasian", desired_prob = c(0.5,1))
-#'   print(difference)
+#'   print(pred_diff)
 #' }
 #' 
 #' 
