@@ -64,7 +64,7 @@ A dataframe containing the prediction differences}
 \item \href{#method-generate_counterfactuals}{\code{FairnessTest$generate_counterfactuals()}}
 \item \href{#method-get_prediction_difference}{\code{FairnessTest$get_prediction_difference()}}
 \item \href{#method-plot_tSNE}{\code{FairnessTest$plot_tSNE()}}
-\item \href{#method-print_prediction}{\code{FairnessTest$print_prediction()}}
+\item \href{#method-get_prediction}{\code{FairnessTest$get_prediction()}}
 \item \href{#method-prediction_percentages}{\code{FairnessTest$prediction_percentages()}}
 \item \href{#method-get_mpd}{\code{FairnessTest$get_mpd()}}
 \item \href{#method-get_cfactuals_count}{\code{FairnessTest$get_cfactuals_count()}}
@@ -184,12 +184,12 @@ name of another factor variable that we want to see in the plot}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print_prediction"></a>}}
-\if{latex}{\out{\hypertarget{method-print_prediction}{}}}
-\subsection{Method \code{print_prediction()}}{
+\if{html}{\out{<a id="method-get_prediction"></a>}}
+\if{latex}{\out{\hypertarget{method-get_prediction}{}}}
+\subsection{Method \code{get_prediction()}}{
 prints the prediction of the plausible counterfactuals
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$print_prediction()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FairnessTest$get_prediction()}\if{html}{\out{</div>}}
 }
 
 }
