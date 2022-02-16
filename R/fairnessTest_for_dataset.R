@@ -301,6 +301,5 @@ fairnesstest_whatif = function(main_data, df, y, sen_attribute, desired_level, d
   print("MBE for instances:")
   print(mbe)
   return(final_df)
-  
 }
 

@@ -92,6 +92,15 @@ FairnessTest = R6::R6Class("FairnessTest",
      assert_character(sensitive_attribute, len = 1L, any.missing = FALSE)
      assert_character(desired_level, len = 1L, any.missing = FALSE)
      
+     # Checks desired_prob
+     assert_numeric(desired_prob, any.missing = FALSE, min.len = 1L,  max.len = 2L, lower = 0, upper = 1)
+     if (length(desired_prob) == 1L) {
+       desired_prob = c(desired_prob, desired_prob)
+     }
+     if (desired_prob[2L] < desired_prob[1L]) {
+       stop("The lower bound of `desired_prob` cannot be greater than the upper bound.")
+     }
+     
      # predictor for the protected attribute as response variable
      predictor_protected = private$get_predictor_protected(predictor, x_interest)
      
