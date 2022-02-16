@@ -3,6 +3,18 @@
 
 # moccf: Multi-objective counterfactuals for counterfactual fairness
 
+## Installation
+
+You can install the development version from
+[GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("RifatMehreen/moccf")
+```
+
+## Getting started
+
 In this example, we train a `randomForest` on the `COMPAS` dataset.
 
 We now examine whether the prediction of a given `yes` for
@@ -141,4 +153,4 @@ the `$plot_tSNE()` method.
 fairness_obj$plot_tSNE(x_interest, factor_variable = "sex")
 ```
 
-![](man/figures/README-unnamed-chunk-12-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-13-1.png)<!-- -->
