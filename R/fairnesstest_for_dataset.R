@@ -1,3 +1,10 @@
+#' fairnesstest_moc
+#' 
+#' A function to print the MBE and instance(s) with ampd for moc
+#'
+#' @return A character vector
+#' @export
+
 fairnesstest_moc = function(main_data, df, y, sen_attribute, desired_level, fixed_features = NULL, n_generation, desired_prob, model){
   final_df <- data.frame(matrix(ncol = 7, nrow = nrow(df)))
   colnames(final_df) <- c('instance_id', 'pred_x_interest', 'pred_prob_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)', 'ampd')
@@ -66,11 +73,18 @@ fairnesstest_moc = function(main_data, df, y, sen_attribute, desired_level, fixe
     mbe = mbe + final_df[[7]][i]
   }
   mbe = abs(mbe)/nrow(df)
-  print("MBE for instances:")
-  print(mbe)
-  return(final_df)
+  # print("MBE for instances:")
+  # print(mbe)
+  return(mbe, final_df)
   
 }
+
+#' fairnesstest_nice
+#' 
+#' A function to print the MBE and instance(s) with ampd for moc
+#'
+#' @return A character vector
+#' @export
 
 fairnesstest_nice = function(main_data, df, y, sen_attribute, desired_level, n_generation, desired_prob, model){
   final_df <- data.frame(matrix(ncol = 7, nrow = nrow(df)))
@@ -184,13 +198,19 @@ fairnesstest_nice = function(main_data, df, y, sen_attribute, desired_level, n_g
     mbe = mbe + final_df[[7]][i]
   }
   mbe = mbe/nrow(df)
-  print("MBE for instances:")
-  print(mbe)
+  # print("MBE for instances:")
+  # print(mbe)
   
-  return(final_df)
+  return(mbe, final_df)
   
 }
 
+#' fairnesstest_whatif
+#' 
+#' A function to print the MBE and instance(s) with ampd for moc
+#'
+#' @return A character vector
+#' @export
 fairnesstest_whatif = function(main_data, df, y, sen_attribute, desired_level, desired_prob, model){
   final_df <- data.frame(matrix(ncol = 7, nrow = nrow(df)))
   colnames(final_df) <- c('instance_id', 'pred_x_interest', 'pred_prob_x_interest', 'mean_prediction_difference', 'total_cf', 'execution_time(s)', 'ampd')
@@ -296,8 +316,8 @@ fairnesstest_whatif = function(main_data, df, y, sen_attribute, desired_level, d
     
   }
   mbe = abs(mbe)/nrow(df)
-  print("MBE for instances:")
-  print(mbe)
-  return(final_df)
+  # print("MBE for instances:")
+  # print(mbe)
+  return(mbe, final_df)
 }
 
