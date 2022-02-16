@@ -1,6 +1,6 @@
 library(checkmate)
 
-# $initialization ------------------------------------------------------------------------------------------------------
+# $initialize() -------------------------------------------------------------------------------------------------------------
 test_that("$initialize() returns error if predictor given does not have the correct class", {
   expect_snapshot_error(FairnessTest$new(predictor = "wrong", df = NULL, sensitive_attribute = NULL, n_generations = 175L))
 })
@@ -9,7 +9,7 @@ test_that("$initialize() returns error if dataframe given does not have the corr
   expect_snapshot_error(FairnessTest$new(predictor = "wrong", df = "wrong", sensitive_attribute = NULL, n_generations = 175L))
 })
 
-# $generate_counterfactuals ------------------------------------------------------------------------------------------------
+# $generate_counterfactuals() ------------------------------------------------------------------------------------------------
 test_that("$generate_counterfactuals returns meaningful error if x_interest does not contain all columns of predictor$data$X", {
   set.seed(54542142)
   rf = get_rf_classif_adult()
@@ -30,5 +30,23 @@ test_that("$generate_counterfactuals returns meaningful error if x_interest has 
   expect_snapshot_error(cc$generate_counterfactuals(x_interest))
 })
 
-# $get_prediction_difference ------------------------------------------------------------------------------------------------
+# $get_prediction_difference() ------------------------------------------------------------------------------------------------
+test_that("$get_prediction_difference returns meaningful error if x_interest does not contain all columns of predictor$data$X", {
+  set.seed(54542142)
+  rf = get_rf_classif_adult()
+  pred_class = iml::Predictor$new(rf, type = "class", class = ">=50K")
+  cc = FairnessTest$new(predictor = pred_class)
+  cc$generate_counterfactuals(x_interest, desired_level = "Male", desired_prob = c(1,1), fixed_features = "race")
+  expect_snapshot_error(cc$get_prediction_difference(mtcars[1L, ]))
+})
 
+test_that("$get_prediction_difference returns meaningful error if x_interest has unexpected column types", {
+  set.seed(54542142)
+  rf = get_rf_classif_adult()
+  pred_class = iml::Predictor$new(rf, type = "class", class = ">=50K")
+  cc = FairnessTest$new(predictor = pred_class)
+  cc$generate_counterfactuals(x_interest, desired_level = "Male", desired_prob = c(1,1), fixed_features = "race")
+  x_interest = adult[91L, ]
+  x_interest$age = as.character(x_interest$age)
+  expect_snapshot_error(cc$get_prediction_difference(x_interest))
+})
