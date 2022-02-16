@@ -97,9 +97,6 @@ FairnessTest = R6::R6Class("FairnessTest",
      assert_data_frame(x_interest, nrows = 1L)
      assert_names(names(x_interest), must.include = names(predictor$data$X))
      x_interest = setDT(x_interest)[, names(predictor$data$X), with = FALSE]
-     if (any(sapply(x_interest, typeof) != sapply(predictor$data$X, typeof))) {
-       stop("Columns that appear in `x_interest` and `predictor$data$X` must have the same types.")
-     }
      
      # Checks desired_prob
      assert_numeric(desired_prob, any.missing = FALSE, min.len = 1L,  max.len = 2L, lower = 0, upper = 1)
@@ -151,9 +148,6 @@ FairnessTest = R6::R6Class("FairnessTest",
      assert_data_frame(x_interest, nrows = 1L)
      assert_names(names(x_interest), must.include = names(predictor$data$X))
      x_interest = setDT(x_interest)[, names(predictor$data$X), with = FALSE]
-     if (any(sapply(x_interest, typeof) != sapply(predictor$data$X, typeof))) {
-       stop("Columns that appear in `x_interest` and `predictor$data$X` must have the same types.")
-     }
      
      set.seed(142)
      # predicting the original instance
