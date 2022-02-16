@@ -130,11 +130,10 @@ FairnessTest = R6::R6Class("FairnessTest",
      # calculating the distances
      df_merged = cbind(dataframe, df_pred_prot)
      
-     # this `no` is for column name of probability of no.
      idx_pred = which(pred_x_interest>=0.5)
      name_col = names(pred_x_interest[idx_pred])
      
-     df_merged$diff_from_instance =  (pred_x_interest[, name_col]) - (df_merged[, ..name_col])
+     df_merged$diff_from_instance =  (pred_x_interest[, name_col]) - (df_merged[, name_col])
      self$pred_diff = df_merged$diff_from_instance
      return(df_merged)
    },
@@ -292,7 +291,6 @@ FairnessTest = R6::R6Class("FairnessTest",
       
       est = as.formula(paste(substitute(sensitive_attribute), " ~ ."))
       set.seed(142)
-      print(df)
       rf1 = randomForest(est, data = df[-(row_num), ])
       predictor_protected = iml::Predictor$new(rf1, type = "prob", data = df[-(row_num), ])
       return(predictor_protected)

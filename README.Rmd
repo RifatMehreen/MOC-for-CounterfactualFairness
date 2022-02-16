@@ -17,6 +17,17 @@ options(width = 200)
 
 # moccf: Multi-objective counterfactuals for counterfactual fairness
 
+## Installation
+
+You can install the development version from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("RifatMehreen/moccf")
+```
+
+## Getting started 
+
 In this example, we train a `randomForest` on the `COMPAS` dataset.
 
 We now examine whether the prediction of a given `yes` for `two_yr_recid` observation will change

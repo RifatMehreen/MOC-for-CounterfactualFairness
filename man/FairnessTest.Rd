@@ -37,7 +37,7 @@ if (require("randomForest")) {
 \item{\code{predictor}}{(\link[iml]{Predictor})\cr
 The object (created with \code{iml::Predictor$new()}) holding the machine learning model and the data.}
 
-\item{\code{df}}{(dataframe)\cr
+\item{\code{df}}{(\code{data_frame})\cr
 The dataset or dataframe for the prediction}
 
 \item{\code{sensitive_attribute}}{(\code{string})\cr
@@ -46,13 +46,13 @@ The name of the sensitive attribute.}
 \item{\code{n_generations}}{(\code{integerish(1)})\cr
 The number of generations. Default is \code{175L}.}
 
-\item{\code{cfs}}{(dataframe)\cr
+\item{\code{cfs}}{(\code{data_frame})\cr
 A datframe containing counterfactuals (plausible)}
 
-\item{\code{org_cfs}}{(dataframe)\cr
+\item{\code{org_cfs}}{(\code{data_frame})\cr
 A dataframe containing all counterfactuals}
 
-\item{\code{pred_diff}}{(dataframe)\cr
+\item{\code{pred_diff}}{(\code{data_frame})\cr
 A dataframe containing the prediction differences}
 }
 \if{html}{\out{</div>}}
@@ -91,7 +91,7 @@ Create a new FairnessTest object.
 \item{\code{predictor}}{(\link[iml]{Predictor})\cr
 The object (created with \code{iml::Predictor$new()}) holding the machine learning model and the data.}
 
-\item{\code{df}}{(dataframe)\cr
+\item{\code{df}}{(\code{data_frame})\cr
 The dataset or dataframe}
 
 \item{\code{sensitive_attribute}}{(\code{string})\cr
