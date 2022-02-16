@@ -75,7 +75,7 @@ fairnesstest_moc = function(main_data, df, y, sen_attribute, desired_level, fixe
   mbe = abs(mbe)/nrow(df)
   # print("MBE for instances:")
   # print(mbe)
-  return(c(mbe, final_df))
+  return(list(as.data.frame(mbe), as.data.frame(final_df)))
   
 }
 
@@ -201,7 +201,7 @@ fairnesstest_nice = function(main_data, df, y, sen_attribute, desired_level, n_g
   # print("MBE for instances:")
   # print(mbe)
   
-  return(c(mbe, final_df))
+  return(list(as.data.frame(mbe), as.data.frame(final_df)))
   
 }
 
@@ -318,6 +318,6 @@ fairnesstest_whatif = function(main_data, df, y, sen_attribute, desired_level, d
   mbe = abs(mbe)/nrow(df)
   # print("MBE for instances:")
   # print(mbe)
-  return(c(mbe, final_df))
+  return(list(as.data.frame(mbe), as.data.frame(final_df)))
 }
 
