@@ -96,7 +96,6 @@ FairnessTest = R6::R6Class("FairnessTest",
      # Checks x_interest
      assert_data_frame(x_interest, nrows = 1L)
      assert_names(names(x_interest), must.include = names(predictor$data$X))
-     x_interest = setDT(x_interest)[, names(predictor$data$X), with = FALSE]
      
      # Checks desired_prob
      assert_numeric(desired_prob, any.missing = FALSE, min.len = 1L,  max.len = 2L, lower = 0, upper = 1)
@@ -147,7 +146,6 @@ FairnessTest = R6::R6Class("FairnessTest",
      # Checks x_interest
      assert_data_frame(x_interest, nrows = 1L)
      assert_names(names(x_interest), must.include = names(predictor$data$X))
-     x_interest = setDT(x_interest)[, names(predictor$data$X), with = FALSE]
      
      set.seed(142)
      # predicting the original instance
