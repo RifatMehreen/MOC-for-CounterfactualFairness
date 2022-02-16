@@ -18,6 +18,14 @@ knitr::opts_chunk$set(
 options(width = 130)
 ```
 
+We install the development version from [GitHub](https://github.com/) with:
+
+``` {r, results='hide', message=FALSE}
+# install.packages("devtools")
+devtools::install_github("RifatMehreen/moccf")
+```
+
+
 ```{r setup, message=FALSE}
 library(dplyr)
 library(plyr)
@@ -181,4 +189,14 @@ It is also possible to plot the distribution of the data instances, `x_interest`
 fairness_object$plot_tSNE(x_interest, factor_variable = "race")
 ```
 
+We can now test the unfairness for the model for more than one instance. Here, 2 instances are used for the test. 
 
+```{r, results='hide', message=FALSE}
+adult_sample = adult[c(91,95), ]
+result = fairnesstest_moc(adult, adult_sample, "income", sen_attribute = "sex", desired_level = "Male", fixed_features = "race", n_generation = 175, desired_prob = 1, model = "randomForest")
+```
+
+```{r}
+result[[1]]
+result[[2]]
+```
