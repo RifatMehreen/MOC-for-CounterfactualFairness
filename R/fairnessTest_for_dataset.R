@@ -127,14 +127,13 @@ fairnesstest_nice = function(main_data, df, y, sen_attribute, desired_level, n_g
     x_interest_wo_tyr <- subset(x_interest, select = -c(idx_y_x))
     idx_y = which(data.frame(colnames(data_cfactuals)) == y)
     data_cfactuals <- subset(data_cfactuals, select = -c(idx_y))
-
+    
     
     data_cfactuals <- subset(data_cfactuals, select = -c(grep("reward", colnames(data_cfactuals)):length(data_cfactuals)))
     data_cfactuals[sen_attribute] = desired_level
     data_cfactuals = rbind(x_interest_wo_tyr , data_cfactuals)
     data_cfactuals = data_cfactuals[-1,]
     
-    # print("prediction probability for x_interest:")
     pred_x_interest = predictor$predict(x_interest)
     pred_cfactuals = predictor$predict(data_cfactuals)
     
@@ -151,7 +150,7 @@ fairnesstest_nice = function(main_data, df, y, sen_attribute, desired_level, n_g
     final_df[[2]][i] = name_col
     final_df[[3]][i] = pred_x_interest[, name_col]
     final_df[[4]][i] = mean(diff)
-
+    
     final_df[[5]][i] = nrow(data_cfactuals)
     final_df[[6]][i] = round((endTime - startTime),2)
     final_df[[7]][i] = abs(final_df[[4]][i])
@@ -247,7 +246,6 @@ fairnesstest_whatif = function(main_data, df, y, sen_attribute, desired_level, d
     data_cfactuals = rbind(x_interest_wo_tyr , data_cfactuals)
     data_cfactuals = data_cfactuals[-1,]
     
-    # print("prediction probability for x_interest:")
     pred_x_interest = predictor$predict(x_interest)
     pred_cfactuals = predictor$predict(data_cfactuals)
     
@@ -297,6 +295,7 @@ fairnesstest_whatif = function(main_data, df, y, sen_attribute, desired_level, d
     mbe = mbe + final_df[[7]][i]
     
   }
+  #calculate mbe
   mbe = abs(mbe)/nrow(df)
   print("MBE for instances:")
   print(mbe)
