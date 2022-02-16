@@ -56,6 +56,8 @@ FairnessTest = R6::R6Class("FairnessTest",
    n_generations = NULL,
    pred_diff = NULL,
    initialize = function(predictor = NULL, df = NULL, sensitive_attribute = NULL, n_generations = 175L) {
+     assert_class(predictor, "Predictor")
+     assert_data_frame(df)
      
      self$predictor <- predictor
      self$df <- df
@@ -86,11 +88,18 @@ FairnessTest = R6::R6Class("FairnessTest",
      n_generations = self$n_generations
      
      # variable checks
-     assert_data_frame(x_interest, nrows = 1L)
      assert_integerish(n_generations, lower = 0, len = 1L)
      assert_names(fixed_features, subset.of = predictor$data$feature.names)
      assert_character(sensitive_attribute, len = 1L, any.missing = FALSE)
      assert_character(desired_level, len = 1L, any.missing = FALSE)
+     
+     # Checks x_interest
+     assert_data_frame(x_interest, nrows = 1L)
+     assert_names(names(x_interest), must.include = names(private$predictor$data$X))
+     x_interest = setDT(x_interest)[, names(private$predictor$data$X), with = FALSE]
+     if (any(sapply(x_interest, typeof) != sapply(private$predictor$data$X, typeof))) {
+       stop("Columns that appear in `x_interest` and `predictor$data$X` must have the same types.")
+     }
      
      # Checks desired_prob
      assert_numeric(desired_prob, any.missing = FALSE, min.len = 1L,  max.len = 2L, lower = 0, upper = 1)
@@ -103,6 +112,15 @@ FairnessTest = R6::R6Class("FairnessTest",
      
      # predictor for the protected attribute as response variable
      predictor_protected = private$get_predictor_protected(predictor, x_interest)
+     
+     # Checks desired_level
+     if (is.null(desired_level)) {
+       if (is.null(predictor_protected$class)) {
+         stop("If `predictor_protected$class` is `NULL`, then the `desired_level` must be specified.")
+       }
+       desired_level = predictor_protected$class
+       message(sprintf("The `desired_levek` was set to the `predictor_protected$class` which is %s.", desired_level))
+     }
      
      # generating counterfactuals using `MOCClassif`
      cf = private$get_cfactuals_moc(x_interest, predictor_protected, desired_prob, desired_level, df, fixed_features, n_generations)
