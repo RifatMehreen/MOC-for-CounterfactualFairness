@@ -2,7 +2,7 @@
 #' 
 #' A function to print the MBE and instance(s) with ampd for moc
 #'
-#' @return A character vector
+#' @return a list of dataframes with results
 #' @export
 
 fairnesstest_moc = function(main_data, df, y, sen_attribute, desired_level, fixed_features = NULL, n_generation, desired_prob, model){
@@ -83,7 +83,7 @@ fairnesstest_moc = function(main_data, df, y, sen_attribute, desired_level, fixe
 #' 
 #' A function to print the MBE and instance(s) with ampd for nice
 #'
-#' @return A character vector
+#' @return a list of dataframes with results
 #' @export
 
 fairnesstest_nice = function(main_data, df, y, sen_attribute, desired_level, n_generation, desired_prob, model){
@@ -209,7 +209,7 @@ fairnesstest_nice = function(main_data, df, y, sen_attribute, desired_level, n_g
 #' 
 #' A function to print the MBE and instance(s) with ampd for whatif
 #'
-#' @return A character vector
+#' @return a list of dataframes with results
 #' @export
 fairnesstest_whatif = function(main_data, df, y, sen_attribute, desired_level, desired_prob, model){
   final_df <- data.frame(matrix(ncol = 7, nrow = nrow(df)))
